@@ -26,11 +26,11 @@ do
 
 	LOG=$LOG_DIR/ooom.log
 
-	echo === Executing: bash "$file" | tee -a $LOG
+	echo === Executing: bash -x "$file" | tee -a $LOG
 
 	LOGN=$LOG_DIR/ooom-boot-$i.log
 
-	bash "$file" 2>&1 | tee -a $LOGN
+	bash -x "$file" 2>&1 | tee -a $LOGN
 
 	echo === $file returned $? at `date` | tee -a $LOG
 
