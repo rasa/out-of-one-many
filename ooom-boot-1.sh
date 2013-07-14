@@ -202,11 +202,7 @@ do
 			continue
 		fi
 
-		voldir=`echo $vol | tr -d /`
 
-		echo === voldir=$voldir
-
-		mnt=/mnt/$voldir
 
 		echo === mnt=$mnt
 

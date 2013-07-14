@@ -37,6 +37,17 @@ do
 		continue
 	fi
 
+	voldir=`echo $vol | tr -d /`
+
+	echo === voldir=$voldir
+
+	mnt=/mnt/$voldir
+
+	if [ -d "$mnt" ]
+	then
+		rmdir "$mnt"
+	fi
+
 	if [ ! -d $vol.orig ]
 	then
 		echo === Directory not found: $vol.orig
