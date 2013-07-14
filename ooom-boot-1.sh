@@ -60,7 +60,7 @@ mkswap()
 
 if [ -b "$SWAP_DEV" ]
 then
-	mkswap($SWAP_DEV)
+	mkswap "$SWAP_DEV"
 fi
 
 for entry in $DISK_MAP
