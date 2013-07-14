@@ -9,23 +9,6 @@ set -o allexport
 # /dev/sde,/mnt/sde,ext3
 # /dev/sdf,/mnt/sdf,xfs,rw,noatime
 
-# @todo use an fstab like file:
-
-# /dev/sdd /home
-# /dev/sde /opt
-# /dev/sdf /srv
-# /dev/sdh /usr/local
-# /dev/sdi /var
-# /dev/sdj /var/lib/mysql
-# /dev/sdk /var/log
-# /dev/sdg /tmp
-# /dev/sdl /mnt/sdl btrfs
-# /dev/sdm /mnt/sdm ext2
-# /dev/sdn /mnt/sdn ext3
-# /dev/sdo /mnt/sdo ext4
-# /dev/sdp /mnt/sdp vfat
-# /dev/sdq /mnt/sdq xfs rw,noatime
-
 DISK_MAP="
 /dev/sdd,/home
 /dev/sde,/opt

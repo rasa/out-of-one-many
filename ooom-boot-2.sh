@@ -19,10 +19,6 @@ fi
 
 pushd "$LOG_DIR"
 
-echo '#############################################################'
-echo === 2100-remove-backup-directories
-echo '#############################################################'
-
 for entry in $DISK_MAP
 do
 	dev=${entry%%,*}
@@ -31,13 +27,13 @@ do
 
 	if [ ! -b "$dev" ]
 	then
-		echo === Device not found: "$dev"
+		echo Error: Device not found: "$dev"
 		continue
 	fi
 
 	if [ ! -d "$vol" ]
 	then
-		echo === Directory not found: $vol
+		echo Error: Directory not found: $vol
 		continue
 	fi
 
@@ -52,20 +48,14 @@ do
 
 	if [ ! -d $vol.orig ]
 	then
-		echo === Directory not found: $vol.orig
+		echo Error: Directory not found: $vol.orig
 		continue
 	fi
 
-	echo === Executing: rm -fr $vol.orig
-
 	rm -fr $vol.orig
 
-	echo === \$?=$?
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 done
-
-echo '#############################################################'
-echo === 3990-zero-free-space
-echo '#############################################################'
 
 # Zero out the free space to save space in the final image
 
@@ -79,19 +69,19 @@ do
 
 #	if [ ! -b "$dev" ]
 #	then
-#		echo === Device not found: "$dev"
+#		echo Error: Device not found: "$dev"
 #		continue
 #	fi
 
 	if [ ! -d "$vol" ]
 	then
-		echo === Directory not found: "$vol"
+		echo Error: Directory not found: "$vol"
 		continue
 	fi
 
 #	if echo "$fmt" | egrep -vq '\b(ext2|ext3|ext4)\b'
 #	then
-#		echo === Skipping format: "$fmt" as it does not support sparse files
+#		echo Skipping format: "$fmt" as it does not support sparse files
 #		continue
 #	fi
 
@@ -102,17 +92,13 @@ do
 
 	zero=${vol}ZERO_FREE_SPACE
 
-	echo === Executing: dd if=/dev/zero of=$zero bs=1M
-
 	dd if=/dev/zero of=$zero bs=1M
 
-	echo === \$?=$?
-
-	echo === Executing: rm -f $zero
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 	rm -f $zero
 
-	echo === \$?=$?
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 done
 
 # eof

@@ -21,53 +21,46 @@ pushd "$LOG_DIR"
 
 for package in $BOOT1_PACKAGES
 do
-	echo === Executing: $APT_GET install $package
-
 	$APT_GET install $package
 
-	echo === \$?=$?
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 done
 
-if [ -b "$SWAP_DEV" ]
-then
-	echo === Executing: swapoff -a -v
-
+mkswap()
+{
 	swapoff -a -v
-
-	echo === \$?=$?
 
 	perl -pi.orig -e 's/^(.*none\s+swap\s+sw.*)$/#\1/;' /etc/fstab
 
-	cat /etc/fstab >fstab1b.out
+	parted -s $1 mklabel msdos mkpart primary linux-swap 1M 100%
 
-	echo === parted -s $SWAP_DEV mklabel msdos mkpart primary linux-swap 1M 100%
-
-	parted -s $SWAP_DEV mklabel msdos mkpart primary linux-swap 1M 100%
-
-	swap_partition=${SWAP_DEV}1
+	swap_partition=${1}1
 
 	if [ ! -b "$swap_partition" ]
 	then
-		echo === Device not found: "$swap_partition"
+		echo Error: Device not found: "$swap_partition"
 	else
-		echo === Executing: mkswap -L swap -f $swap_partition
-
 		mkswap -L swap -f $swap_partition
 
-		echo === \$?=$?
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+
+		echo "Appending \"$swap_partition none swap sw 0 0\"" to /etc/fstab
 
 		echo "$swap_partition none swap sw 0 0" >>/etc/fstab
 
-		echo === Executing: swapon -v $swap_partition
-
 		swapon -v $swap_partition
 
-		echo === \$?=$?
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 		swapon -a -v
 
 		swapon -s
 	fi
+}
+
+if [ -b "$SWAP_DEV" ]
+then
+	mkswap($SWAP_DEV)
 fi
 
 for entry in $DISK_MAP
@@ -105,7 +98,7 @@ do
 
 	if [ ! -b "$dev" ]
 	then
-		echo === Device not found: "$dev"
+		echo Error: Device not found: "$dev"
 		continue
 	fi
 
@@ -115,38 +108,29 @@ do
 #		opt=ro
 #	fi
 
-	#label=`echo $vol | tr -d /`
-	label=$vol
-
-	echo === Executing: parted -s $dev mklabel msdos mkpart primary ext2 1M 100%
-
 	parted -s $dev mklabel msdos mkpart primary ext2 1M 100%
 
-	echo === \$?=$?
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 	if [ ! -b "$dev1" ]
 	then
-		echo === $dev1 not found
+		echo Error: Device not found: $dev1
 		continue
 	fi
-
-	echo === Executing: mkfs.$fmt $dev1
 
 	mkfs.$fmt $dev1
 
 	if [ "$?" -eq "0" ]
 	then
-		echo === Appending "$dev1 $vol $fmt $opt 0 2" to /etc/fstab
+		echo Appending "$dev1 $vol $fmt $opt 0 2" to /etc/fstab
 
 		echo "$dev1 $vol $fmt $opt 0 2" >>/etc/fstab
 
 		if [ ! -d "$vol" ]
 		then
-			echo === Executing: mkdir -p "$vol"
-
 			mkdir -p "$vol"
 
-			echo === \$?=$?
+			EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 		fi
 
 		if [ "$vol" = "/tmp" ]
@@ -157,21 +141,13 @@ do
 
 		voldir=`echo $vol | tr -d /`
 
-		echo === voldir=$voldir
-
 		mnt=/mnt/$voldir
-
-		echo === mnt=$mnt
 
 		mode=0755
 
-		echo === Executing: mkdir -p --mode $mode $mnt
-
 		mkdir -p --mode $mode $mnt
 
-		echo === \$?=$?
-
-		echo === Executing: mount -t $fmt -o $opt $dev1 $mnt
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 		mount -t $fmt -o $opt $dev1 $mnt
 
@@ -179,29 +155,17 @@ do
 		then
 			rmdir $mnt
 		else
-			echo === Executing: chmod $mode $mnt
-
 			chmod $mode $mnt
 
-			echo === \$?=$?
-
-			echo === Executing: ls -ld $mnt
-
-			ls -ld $mnt
+			EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 			pushd $vol
 
-				echo === Executing: cpio --null --sparse --make-directories --pass-through $mnt
-
 				find . -depth -print0 | cpio --null --sparse --make-directories --pass-through $mnt
 
-				echo === \$?=$?
+				EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 			popd
-
-			echo === Executing: ls -ld $mnt
-
-			ls -ld $mnt
 		fi
 	fi
 done
@@ -214,7 +178,7 @@ do
 
 	if [ ! -b "$dev" ]
 	then
-		echo === Device not found: "$dev"
+		echo Error: Device not found: "$dev"
 		continue
 	fi
 
@@ -231,54 +195,30 @@ do
 			mode=0755
 		fi
 
-		echo === Executing: mv -f $vol $vol.orig
-
 		mv -f $vol $vol.orig
-
-		echo === Executing: mkdir -p --mode $mode $vol
 
 		mkdir -p --mode $mode $vol
 
-		echo === \$?=$?
-
-		echo === Executing: ls -ld $vol
-
-		ls -ld $vol
-
-		echo === Executing: chmod $mode $vol
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 		chmod $mode $vol
 
-		echo === \$?=$?
-
-		echo === Executing: ls -ld $vol
-
-		ls -ld $vol
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 		if [ "$vol" = "/tmp" ]
 		then
 			continue
 		fi
 
-		echo === Executing: umount $mnt
-
 		umount $mnt
 
-		echo === \$?=$?
-
-		echo === Executing: mount $vol
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 		mount $vol
 
-		echo === \$?=$?
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 	fi
 done
-
-if [ -f /boot/grub/grub.cfg ]
-then
-	cp -p /boot/grub/grub.cfg $LOG_DIR/grub.cfg
-	cp -p /boot/grub/menu.lst $LOG_DIR/menu.lst
-fi
 
 for entry in $DISK_MAP
 do
@@ -286,47 +226,36 @@ do
 	volfmtopt=${entry#*,}
 	vol=${volfmtopt%%,*}
 
-	if [ ! -b "$dev" ]
-	then
-		echo === Device not found: "$dev"
-		continue
-	fi
-
-	if [ ! -b "$MBR_DEV" ]
-	then
-		echo === Device not found: "$MBR_DEV"
-		continue
-	fi
-
 	if [ "$vol" != "$GRUB_VOL" ]
 	then
 		continue
 	fi
 
-	if [ ! -d "$vol" ]
+	if [ ! -b "$dev" ]
 	then
-		echo === Directory not found: $vol
+		echo Error: Device not found: "$dev"
 		continue
 	fi
 
-	echo === Executing: grub-install --boot-directory=$GRUB_VOL $MBR_DEV
+	if [ ! -b "$MBR_DEV" ]
+	then
+		echo Error: Device not found: "$MBR_DEV"
+		continue
+	fi
+
+	if [ ! -d "$vol" ]
+	then
+		echo Error: Directory not found: $vol
+		continue
+	fi
 
 	grub-install --boot-directory=$GRUB_VOL $MBR_DEV
 
-	echo === \$?=$?
-
-	echo === Executing: update-grub
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 	update-grub
 
-	echo === \$?=$?
-
-	if [ -f /boot/grub/grub.cfg ]
-	then
-		cp -p /boot/grub/grub.cfg $LOG_DIR/grub-2.cfg
-		cp -p /boot/grub/menu.lst $LOG_DIR/menu-2.lst
-	fi
-
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 done
 
 # eof

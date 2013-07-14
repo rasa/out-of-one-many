@@ -26,13 +26,13 @@ do
 
 	LOG=$LOG_DIR/ooom.log
 
-	echo === Executing: bash -x "$file" | tee -a $LOG
+	echo Executing: bash -x "$file" at `date` | tee -a $LOG
 
 	LOGN=$LOG_DIR/ooom-boot-$i.log
 
 	bash -x "$file" 2>&1 | tee -a $LOGN
 
-	echo === $file returned $? at `date` | tee -a $LOG
+	echo $file returned $? at `date` | tee -a $LOG
 
 	mv "$file" "$file.done"
 
@@ -42,7 +42,7 @@ do
 
 	if [ -f "$nextfile" ]
 	then
-		echo === Executing: shutdown -r now | tee -a $LOG
+		echo Executing: shutdown -r now | tee -a $LOG
 
 		shutdown -r now
 		exit
@@ -50,7 +50,7 @@ do
 
 	if [ "$FINAL_COMMAND" ]
 	then
-		echo === Executing: $FINAL_COMMAND | tee -a $LOG
+		echo Executing: $FINAL_COMMAND | tee -a $LOG
 
 		$FINAL_COMMAND
 	fi
