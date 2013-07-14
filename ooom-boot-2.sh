@@ -3,12 +3,12 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
 
 # for debugging only:
-set | sort
+#set | sort
 
 . "$SCRIPT_DIR/ooom-config.sh"
 
 # for debugging only:
-set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
+#set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
 
 if [ ! -d "$LOG_DIR" ]
 then
@@ -34,6 +34,12 @@ do
 	if [ ! -b "$dev" ]
 	then
 		echo === Device not found: "$dev"
+		continue
+	fi
+
+	if [ ! -d "$vol" ]
+	then
+		echo === Directory not found: $vol
 		continue
 	fi
 
