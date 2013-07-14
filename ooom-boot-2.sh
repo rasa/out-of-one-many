@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -o xtrace
+
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
 
 # for debugging only:
