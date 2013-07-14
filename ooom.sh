@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
 
 # for debugging only:
 #set | sort
 
-. "$SCRIPT_DIR/ooom-config.sh"
+. "$OOOM_DIR/ooom-config.sh"
 
 # for debugging only:
 #set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
 
-if [ ! -d "$LOG_DIR" ]
+if [ ! -d "$OOOM_LOG_DIR" ]
 then
-	mkdir -p "$LOG_DIR"
+	mkdir -p "$OOOM_LOG_DIR"
 fi
 
 for i in `seq 1 1 10`
 do
-	file="$SCRIPT_DIR/ooom-boot-$i.sh"
+	file="$OOOM_DIR/ooom-boot-$i.sh"
 
 	if [ ! -f "$file" ]
 	then
 		continue
 	fi
 
-	LOG=$LOG_DIR/ooom.log
+	LOG=$OOOM_LOG_DIR/ooom.log
 
 	echo Executing: bash -x "$file" at `date` | tee -a $LOG
 
-	LOGN=$LOG_DIR/ooom-boot-$i.log
+	LOGN=$OOOM_LOG_DIR/ooom-boot-$i.log
 
 	bash -x "$file" 2>&1 | tee -a $LOGN
 
@@ -38,7 +38,7 @@ do
 
 	j=$(($i + 1))
 
-	nextfile="$SCRIPT_DIR/ooom-boot-$j.sh"
+	nextfile="$OOOM_DIR/ooom-boot-$j.sh"
 
 	if [ -f "$nextfile" ]
 	then
@@ -48,11 +48,11 @@ do
 		exit
 	fi
 
-	if [ "$FINAL_COMMAND" ]
+	if [ "$OOOM_FINAL_COMMAND" ]
 	then
-		echo Executing: $FINAL_COMMAND | tee -a $LOG
+		echo Executing: $OOOM_FINAL_COMMAND | tee -a $LOG
 
-		$FINAL_COMMAND
+		$OOOM_FINAL_COMMAND
 	fi
 
 done

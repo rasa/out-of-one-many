@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+
+pushd "$OOOM_DIR" >/dev/null
 
 rm -fr out-of-one-many ooom.run
 
@@ -18,3 +20,5 @@ then
 fi
 
 $MAKESELF --notemp out-of-one-many ooom.run "Out of one, many: Move and mount directories to different disks"
+
+popd >/dev/null

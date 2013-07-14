@@ -1,5 +1,4 @@
-#/dev/sdb /boot ext2 ro 0 1
-#/dev/sdc none swap sw 0 0
+/dev/sdc none swap sw 0 0
 /dev/sdd /home
 /dev/sde /opt
 /dev/sdf /srv

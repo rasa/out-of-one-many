@@ -40,35 +40,37 @@ OM_rmbackup()
 
 set -o xtrace
 
-SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+
+cd "$OOOM_DIR"
 
 # for debugging only:
 #set | sort
 
-. "$SCRIPT_DIR/ooom-config.sh"
+. "$OOOM_DIR/ooom-config.sh"
 
 # for debugging only:
 #set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
 
-if [ ! -d "$LOG_DIR" ]
+FSTAB_FILE=$OOOM_DIR/$OOOM_FSTAB
+
+if [ ! -f "$FSTAB_FILE" ]
 then
-	mkdir -p "$LOG_DIR"
+	echo File not found: $FSTAB_FILE
+	exit 1
 fi
 
-pushd "$LOG_DIR"
-
-for entry in $DISK_MAP
+while IFS=$' \t' read -r -a var
 do
-	dev=${entry%%,*}
-	volfmtopt=${entry#*,}
-	vol=${volfmtopt%%,*}
+	dev=${var[0]}
+	vol=${var[1]}
 
 	OM_rmbackup "$dev" "$vol"
-done
+done < $FSTAB_FILE
 
 # Zero out the free space to save space in the final image
 
-for vol in $ZERO_DISK_MAP
+for vol in $OOOM_ZERO_DISKS
 do
 	if [ ! -d "$vol" ]
 	then

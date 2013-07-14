@@ -2,11 +2,13 @@
 
 OM_mkswap()
 {
+	dev=$1
+
 	swapoff -a -v
 
-	perl -pi.orig -e 's/^(.*none\s+swap\s+sw.*)$/#\1/;' /etc/fstab
+	perl -pi.orig -e 's/^(.*none\s+swap\s+.*)$/#\1/;' /etc/fstab
 
-	parted -s $1 mklabel msdos mkpart primary linux-swap 1M 100%
+	parted -s $dev mklabel msdos mkpart primary linux-swap 1M 100%
 
 	swap_partition=${1}1
 
@@ -203,17 +205,10 @@ OM_grub_install()
 {
 	dev=$1
 	vol=$2
-	MBR_DEV=$3
 
 	if [ ! -b "$dev" ]
 	then
 		echo Error: Device not found: "$dev"
-		return 1
-	fi
-
-	if [ ! -b "$MBR_DEV" ]
-	then
-		echo Error: Device not found: "$MBR_DEV"
 		return 1
 	fi
 
@@ -223,7 +218,7 @@ OM_grub_install()
 		return 1
 	fi
 
-	grub-install --boot-directory=$vol "$MBR_DEV"
+	grub-install --boot-directory=$vol "$dev"
 
 	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
@@ -234,80 +229,89 @@ OM_grub_install()
 
 set -o xtrace
 
-SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+
+cd "$OOOM_DIR"
 
 # for debugging only:
 #set | sort
 
-. "$SCRIPT_DIR/ooom-config.sh"
+. "$OOOM_DIR/ooom-config.sh"
 
 # for debugging only:
 #set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
 
-if [ ! -d "$LOG_DIR" ]
+FSTAB_FILE=$OOOM_DIR/$OOOM_FSTAB
+
+if [ ! -f "$FSTAB_FILE" ]
 then
-	mkdir -p "$LOG_DIR"
+	echo File not found: $FSTAB_FILE
+	exit 1
 fi
 
-pushd "$LOG_DIR"
-
-for package in $BOOT1_PACKAGES
+while IFS=$' \t' read -r -a var
 do
-	$APT_GET install $package
+	dev=${var[0]}
+	vol=${var[1]}
+	fmt=${var[2]}
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-done
-
-if [ -b "$SWAP_DEV" ]
-then
-	OM_mkswap "$SWAP_DEV"
-fi
-
-for entry in $DISK_MAP
-do
-	dev=${entry%%,*}
-	volfmtopt=${entry#*,}
-	vol=${volfmtopt%%,*}
-
-	fmtopt=${volfmtopt#*,}
-
-	if [ "$fmtopt" = "$vol" ]
-	then
-		fmtopt=
-	fi
-
-	fmt=${fmtopt%%,*}
-	opt=${fmtopt#*,}
-
-	if [ "$opt" = "$fmt" ]
-	then
-		opt=
-	fi
-
-	OM_mkfs "$dev" "$vol" "$fmt" "$opt"
-done
-
-for entry in $DISK_MAP
-do
-	dev=${entry%%,*}
-	volfmtopt=${entry#*,}
-	vol=${volfmtopt%%,*}
-
-	OM_mountvol "$dev" "$vol"
-done
-
-for entry in $DISK_MAP
-do
-	dev=${entry%%,*}
-	volfmtopt=${entry#*,}
-	vol=${volfmtopt%%,*}
-
-	if [ "$vol" != "$GRUB_VOL" ]
+	if [ -z "$fmt" ]
 	then
 		continue
 	fi
 
-	OM_grub_install "dev" "$vol" "$MBR_DEV"
-done
+	for entry in $OOOM_PACKAGE_MAP
+	do
+		fs=${entry%%,*}
+		package=${entry#*,}
+
+		if [ "$fmt" != "$fs" ]
+		then
+			continue
+		fi
+
+		$OOOM_APT_GET install $package
+	done
+
+done < $FSTAB_FILE
+
+while IFS=$' \t' read -r -a var
+do
+	dev=${var[0]}
+	vol=${var[1]}
+	fmt=${var[2]}
+	opt=${var[3]}
+	ex1=${var[4]}
+	ex2=${var[5]}
+
+	if [ "$fst" = "swap" ]
+	then
+		OM_mkfs "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
+		continue
+	fi
+
+	OM_mkfs "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
+done < $FSTAB_FILE
+
+while IFS=$' \t' read -r -a var
+do
+	dev=${var[0]}
+	vol=${var[1]}
+
+	OM_mountvol "$dev" "$vol"
+done < $FSTAB_FILE
+
+while IFS=$' \t' read -r -a var
+do
+	dev=${var[0]}
+	vol=${var[1]}
+
+	if [ "$vol" != "$OOOM_GRUB_VOL" ]
+	then
+		continue
+	fi
+
+	OM_grub_install "dev" "$vol"
+done < $FSTAB_FILE
 
 # eof
