@@ -8,7 +8,6 @@ Move and mount directories to different disks.
 To download, run:
 
 <pre>
-$ apt-get install -y git
 $ git clone git@github.com:rasa/ooom.git
 </pre>
 
