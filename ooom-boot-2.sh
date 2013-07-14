@@ -1,5 +1,43 @@
 #!/usr/bin/env bash
 
+OM_rmbackup()
+{
+	dev=${entry%%,*}
+	volfmtopt=${entry#*,}
+	vol=${volfmtopt%%,*}
+
+	if [ ! -b "$dev" ]
+	then
+		echo Error: Device not found: "$dev"
+		return 1
+	fi
+
+	if [ ! -d "$vol" ]
+	then
+		echo Error: Directory not found: $vol
+		return 1
+	fi
+
+	voldir=`echo $vol | tr -d /`
+
+	mnt=/mnt/$voldir
+
+	if [ -d "$mnt" ]
+	then
+		rmdir "$mnt"
+	fi
+
+	if [ ! -d $vol.orig ]
+	then
+		echo Error: Directory not found: $vol.orig
+		return 1
+	fi
+
+	rm -fr $vol.orig
+
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+}
+
 set -o xtrace
 
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
@@ -25,65 +63,18 @@ do
 	volfmtopt=${entry#*,}
 	vol=${volfmtopt%%,*}
 
-	if [ ! -b "$dev" ]
-	then
-		echo Error: Device not found: "$dev"
-		continue
-	fi
-
-	if [ ! -d "$vol" ]
-	then
-		echo Error: Directory not found: $vol
-		continue
-	fi
-
-	voldir=`echo $vol | tr -d /`
-
-	mnt=/mnt/$voldir
-
-	if [ -d "$mnt" ]
-	then
-		rmdir "$mnt"
-	fi
-
-	if [ ! -d $vol.orig ]
-	then
-		echo Error: Directory not found: $vol.orig
-		continue
-	fi
-
-	rm -fr $vol.orig
-
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+	OM_rmbackup "$dev" "$vol"
 done
 
 # Zero out the free space to save space in the final image
 
 for vol in $ZERO_DISK_MAP
 do
-#	dev=${entry%%,*}
-#	volfmtopt=${entry#*,}
-#	vol=${volfmtopt%%,*}
-#	fmtopt=${volfmtopt#*,}
-#	fmt=${fmtopt%%,*}
-
-#	if [ ! -b "$dev" ]
-#	then
-#		echo Error: Device not found: "$dev"
-#		continue
-#	fi
-
 	if [ ! -d "$vol" ]
 	then
 		echo Error: Directory not found: "$vol"
 		continue
 	fi
-
-#	if echo "$fmt" | egrep -vq '\b(ext2|ext3|ext4)\b'
-#	then
-#		echo Skipping format: "$fmt" as it does not support sparse files
-#		continue
-#	fi
 
 	if [ "$vol" != "/" ]
 	then
