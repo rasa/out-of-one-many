@@ -21,7 +21,7 @@ do
 
 	if [ ! -f "$file" ]
 	then
-		break
+		continue
 	fi
 
 	LOG=$LOG_DIR/ooom.log
