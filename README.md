@@ -1,7 +1,21 @@
 Out of one, many (ex uno, plures)
 ==========
 
-Move and mount directories to different disks.
+Move directories to different disks.
+
+This script will move one or more directories from one disk to another.
+
+For example, you could move:
+
+/boot      to /dev/sdb (not yet implemented/working)
+swap       to /dev/sdc
+/home      to /dev/sdd
+/usr/local to /dev/sde
+/var       to /dev/sdf
+/var/log   to /dev/sdg
+/tmp       to /dev/sdh
+
+You can define the file system and mount options, as well.
 
 ## Usage
 
@@ -14,7 +28,15 @@ $ git clone https://github.com/rasa/out-of-one-many.git
 Alternatively, you may download ooom via:
 
 <pre>
-wget -O - https://raw.github.com/rasa/out-of-one-many/master/ooom.run | sh
+wget https://raw.github.com/rasa/out-of-one-many/master/ooom.run
+sh ./ooom.run
+</pre>
+
+or the equivalent, but shorter:
+
+<pre>
+wget http://goo.gl/7FEJe
+sh ./7FEJe
 </pre>
 
 To install, run:
