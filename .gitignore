@@ -3,4 +3,5 @@
 .DS_Store*
 nohup.out
 /makeself
-/ooom
+/out-of-one-many
+

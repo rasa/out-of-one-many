@@ -2,11 +2,11 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")"; pwd)"
 
-rm -fr ooom ooom.run
+rm -fr out-of-one-many ooom.run
 
-mkdir -p ooom
+mkdir -p out-of-one-many
 
-git archive master | tar -x -C ooom
+git archive master | tar -x -C out-of-one-many
 
 MAKESELF=`which makeself.sh 2>/dev/null || true`
 
@@ -17,4 +17,4 @@ then
 	MAKESELF=`which makeself.sh 2>/dev/null || true`
 fi
 
-$MAKESELF --notemp ooom ooom.run "Out of one, many: Move and mount directories to different disks"
+$MAKESELF --notemp out-of-one-many ooom.run "Out of one, many: Move and mount directories to different disks"

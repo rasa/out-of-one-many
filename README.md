@@ -8,7 +8,7 @@ Move and mount directories to different disks.
 To download, run:
 
 <pre>
-$ git clone git@github.com:rasa/ooom.git
+$ git clone https://github.com/rasa/out-of-one-many.git
 </pre>
 
 Alternatively, you may download ooom via:
@@ -20,7 +20,7 @@ wget -O - https://raw.github.com/rasa/out-of-one-many/master/ooom.run | sh
 To install, run:
 
 <pre>
-$ cd ooom
+$ cd out-of-one-many
 $ vi ooom-config.sh
 $ sudo ./install.sh
 $ sudo shutdown -r now
