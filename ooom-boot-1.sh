@@ -17,13 +17,6 @@ fi
 
 pushd "$LOG_DIR"
 
-echo '#############################################################'
-echo === 1100-apt-install-boot1-packages
-echo '#############################################################'
-
-# for debugging only:
-dpkg -l >dpkg--list-boot1-0.log
-
 for package in $BOOT1_PACKAGES
 do
 	echo === Executing: $APT_GET install $package
@@ -33,32 +26,13 @@ do
 	echo === \$?=$?
 done
 
-# for debugging only:
-dpkg -l >dpkg-list-boot1-1.log
-
-echo '#############################################################'
-echo === 1200-prepare-swap
-echo '#############################################################'
-
-cat /etc/fstab   >fstab1.out
-cat /proc/mounts >mount1.out
-parted -l        >parted1.out
-
 if [ -b "$SWAP_DEV" ]
 then
-	echo === Executing: swapon -s
-
-	swapon -s > swapon1.out
-
-	echo === \$?=$?
-
 	echo === Executing: swapoff -a -v
 
 	swapoff -a -v
 
 	echo === \$?=$?
-
-	swapon -s >swapon2.out
 
 	perl -pi.orig -e 's/^(.*none\s+swap\s+sw.*)$/#\1/;' /etc/fstab
 
@@ -88,19 +62,11 @@ then
 
 		echo === \$?=$?
 
-		swapon -a -v >swapon3.out
+		swapon -a -v
 
-		swapon -s >swapon4.out
+		swapon -s
 	fi
 fi
-
-cat /etc/fstab   >fstab2.out
-cat /proc/mounts >mount2.out
-parted -l        >parted2.out
-
-echo '#############################################################'
-echo === 1210-format-volumes
-echo '#############################################################'
 
 for entry in $DISK_MAP
 do
@@ -108,13 +74,7 @@ do
 	volfmtopt=${entry#*,}
 	vol=${volfmtopt%%,*}
 
-	echo === dev=$dev
-	echo === volfmtopt=$volfmtopt
-	echo === vol=$vol
-
 	fmtopt=${volfmtopt#*,}
-
-	echo === fmtopt=$fmtopt
 
 	if [ "$fmtopt" = "$vol" ]
 	then
@@ -123,9 +83,6 @@ do
 
 	fmt=${fmtopt%%,*}
 	opt=${fmtopt#*,}
-
-	echo === fmt=$fmt
-	echo === opt=$opt
 
 	if [ "$opt" = "$fmt" ]
 	then
@@ -144,10 +101,6 @@ do
 
 	dev1=${dev}1
 
-	echo === fmt=$fmt
-	echo === opt=$opt
-	echo === dev1=$dev1
-
 	if [ ! -b "$dev" ]
 	then
 		echo === Device not found: "$dev"
@@ -162,8 +115,6 @@ do
 
 	#label=`echo $vol | tr -d /`
 	label=$vol
-
-	echo === label=$label
 
 	echo === Executing: parted -s $dev mklabel msdos mkpart primary ext2 1M 100%
 
@@ -238,9 +189,9 @@ do
 
 			pushd $vol
 
-				echo === Executing: cpio --null --sparse --make-directories --pass-through --verbose $mnt
+				echo === Executing: cpio --null --sparse --make-directories --pass-through $mnt
 
-				find . -depth -print0 | cpio --null --sparse --make-directories --pass-through --verbose $mnt
+				find . -depth -print0 | cpio --null --sparse --make-directories --pass-through $mnt
 
 				echo === \$?=$?
 
@@ -252,14 +203,6 @@ do
 		fi
 	fi
 done
-
-cat /etc/fstab   >fstab3.out
-cat /proc/mounts >mount3.out
-parted -l        >parted3.out
-
-echo '#############################################################'
-echo === 1220-copy-volume-data
-echo '#############################################################'
 
 for entry in $DISK_MAP
 do
@@ -275,11 +218,7 @@ do
 
 	voldir=`echo $vol | tr -d /`
 
-	echo === voldir=$voldir
-
 	mnt=/mnt/$voldir
-
-	echo === mnt=$mnt
 
 	if [ -d "$mnt" ]
 	then
@@ -290,9 +229,7 @@ do
 			mode=0755
 		fi
 
-		echo === mode=$mode
-
-		echo === mv -f $vol $vol.orig
+		echo === Executing: mv -f $vol $vol.orig
 
 		mv -f $vol $vol.orig
 
@@ -334,14 +271,6 @@ do
 		echo === \$?=$?
 	fi
 done
-
-cat /etc/fstab   >fstab4.out
-cat /proc/mounts >mount4.out
-parted -l        >parted4.out
-
-echo '#############################################################'
-echo === 1230-prepare-boot-volume
-echo '#############################################################'
 
 if [ -f /boot/grub/grub.cfg ]
 then
@@ -395,10 +324,6 @@ do
 		cp -p /boot/grub/grub.cfg $LOG_DIR/grub-2.cfg
 		cp -p /boot/grub/menu.lst $LOG_DIR/menu-2.lst
 	fi
-
-	cat /etc/fstab   >fstab5.out
-	cat /proc/mounts >mount5.out
-	parted -l        >parted5.out
 
 done
 

@@ -17,10 +17,6 @@ fi
 
 pushd "$LOG_DIR"
 
-cat /etc/fstab   >fstab6.out
-cat /proc/mounts >mount6.out
-parted -l        >parted6.out
-
 echo '#############################################################'
 echo === 2100-remove-backup-directories
 echo '#############################################################'
@@ -44,8 +40,6 @@ do
 	fi
 
 	voldir=`echo $vol | tr -d /`
-
-	echo === voldir=$voldir
 
 	mnt=/mnt/$voldir
 
@@ -72,22 +66,6 @@ echo === 3990-zero-free-space
 echo '#############################################################'
 
 # Zero out the free space to save space in the final image
-
-#zero=/ZERO_FREE_SPACE
-
-#echo === Executing: dd if=/dev/zero of=$zero bs=1M
-
-#dd if=/dev/zero of=$zero bs=1M
-
-#echo === \$?=$?
-
-#echo === Executing: rm -f $zero
-
-#rm -f $zero
-
-#echo === \$?=$?
-
-df -hT | tee df-1.log
 
 for vol in $ZERO_DISK_MAP
 do
@@ -135,4 +113,4 @@ do
 	echo === \$?=$?
 done
 
-df -hT | tee df-2.log
+# eof

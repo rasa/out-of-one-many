@@ -63,7 +63,7 @@ FINAL_COMMAND=""
 
 LOG_DIR=/.ooom-logs
 
-APT_GET="apt-get -q -y --allow-unauthenticated --no-install-recommends"
+APT_GET="apt-get -q -q -y --allow-unauthenticated --no-install-recommends"
 
 BOOT1_PACKAGES="
 	btrfs-tools
