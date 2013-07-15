@@ -71,13 +71,13 @@ then
 	exit 1
 fi
 
-while IFS=$' \t' read -r -a var
+cat $FSTAB_FILE | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
 	vol=${var[1]}
 
 	OM_rmbackup "$dev" "$vol"
-done < $FSTAB_FILE
+done
 
 # Zero out the free space to save space in the final image
 

@@ -143,23 +143,21 @@ OM_mkfs()
 		return 1
 	fi
 
-	if [ "$vol" = "/tmp" ]
-	then
-		echo Skipping volume $vol
-		return 0
-	fi
-
 	voldir=`echo $vol | tr -d /`
 
 	mnt=/mnt/$voldir
 
-	mode=0755
-
-	mkdir -p --mode $mode $mnt
+	mkdir -p --mode 0755 $mnt
 
 	if [ ! -d "$mnt" ]
 	then
 		return 1
+	fi
+
+	if [ "$vol" = "/tmp" ]
+	then
+		echo Skipping volume $vol
+		return 0
 	fi
 
 	mount -t $fmt -o $opt $devn $mnt
@@ -228,19 +226,19 @@ OM_mvvol()
 		return 1
 	fi
 
-	if [ "$vol" = "/tmp" ]
-	then
-		mode=1777
-	else
-		mode=0755
-	fi
-
 	mv -f $vol $vol.orig
 
 	if [ ! -d "$vol.orig" ]
 	then
 		echo Error: Directory not found: "$vol.orig"
 		return 1
+	fi
+
+	if [ "$vol" = "/tmp" ]
+	then
+		mode=1777
+	else
+		mode=0755
 	fi
 
 	mkdir -p --mode $mode $vol
@@ -326,16 +324,6 @@ then
 	exit 1
 fi
 
-# https://bugs.launchpad.net/ubuntu/+source/ntfs-3g/+bug/1148541
-
-if [ ! -L /sbin/mkfs.ntfs ]
-then
-	if [ -f /sbin/mkntfs ]
-	then
-		ln -s /sbin/mkntfs /sbin/mkfs.ntfs
-	fi
-fi
-
 while IFS=$' \t' read -r -a var
 do
 	fmt=${var[2]}
@@ -360,7 +348,17 @@ do
 
 done < $FSTAB_FILE
 
-while IFS=$' \t' read -r -a var
+# https://bugs.launchpad.net/ubuntu/+source/ntfs-3g/+bug/1148541
+
+if [ ! -L /sbin/mkfs.ntfs ]
+then
+	if [ -f /sbin/mkntfs ]
+	then
+		ln -s /sbin/mkntfs /sbin/mkfs.ntfs
+	fi
+fi
+
+cat $FSTAB_FILE | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
 	vol=${var[1]}
@@ -376,17 +374,17 @@ do
 	fi
 
 	OM_mkfs "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
-done < $FSTAB_FILE
+done
 
-while IFS=$' \t' read -r -a var
+tac $FSTAB_FILE | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
 	vol=${var[1]}
 
 	OM_mvvol "$dev" "$vol"
-done < $FSTAB_FILE
+done
 
-while IFS=$' \t' read -r -a var
+cat $FSTAB_FILE | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
 	vol=${var[1]}
@@ -399,7 +397,7 @@ do
 	echo NOTE: Grub installation not yet implemented, sorry.
 
 #	OM_grubdev "dev" "$vol"
-done < $FSTAB_FILE
+done
 
 if [ -f "$OOOM_DIR/ooom-custom-boot-1-end.sh" ]
 then

@@ -5,16 +5,18 @@ Move directories to different disks.
 
 This script will move one or more directories from one disk to another, via a single `ooom.fstab` configuration file.
 
-For example, a `ooom.fstab` of
+For example, if you updated `ooom.fstab` with
 
+<pre>
 /dev/sdb none swap
 /dev/sdc1 /home
 /dev/sdd1 /usr/local ext2
 /dev/sde1 /var
 /dev/sdf1 /tmp
 /dev/sdg1 /mnt/sdg xfs rw,noatime
+</pre>
 
-Will partition, format, and copy the following directories from `/dev/sda`, to:
+ooom will partition, format, and copy the following directories on `/dev/sda`:
 
 <pre>
 /home      to /dev/sdc1

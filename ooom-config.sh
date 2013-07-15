@@ -2,7 +2,7 @@
 
 set -o allexport
 
-OOOM_ZERO_DISKS="/ /var"
+OOOM_ZERO_DISKS="/"
 
 # doesn't work yet:
 OOOM_GRUB_VOL=

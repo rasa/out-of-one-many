@@ -13,6 +13,6 @@
 /dev/sdo1 /mnt/sdo ext4
 /dev/sdp1 /mnt/sdp vfat
 /dev/sdq1 /mnt/sdq xfs rw,noatime
-/dev/sdr1 /mnt/sds exfat
-/dev/sds1 /mnt/sdt ntfs
-/dev/sdt1 /mnt/sdu reiser4
+/dev/sdr1 /mnt/sdr exfat
+/dev/sds1 /mnt/sds ntfs
+/dev/sdt1 /mnt/sdt reiser4
