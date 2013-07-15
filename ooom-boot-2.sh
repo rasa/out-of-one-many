@@ -2,9 +2,8 @@
 
 OM_rmbackup()
 {
-	dev=${entry%%,*}
-	volfmtopt=${entry#*,}
-	vol=${volfmtopt%%,*}
+	dev=$1
+	vol=$2
 
 	if [ ! -b "$dev" ]
 	then
@@ -14,7 +13,7 @@ OM_rmbackup()
 
 	if [ ! -d "$vol" ]
 	then
-		echo Error: Directory not found: $vol
+		echo Error: Directory not found: "$vol"
 		return 1
 	fi
 
@@ -25,11 +24,13 @@ OM_rmbackup()
 	if [ -d "$mnt" ]
 	then
 		rmdir "$mnt"
+
+		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 	fi
 
-	if [ ! -d $vol.orig ]
+	if [ ! -d "$vol.orig" ]
 	then
-		echo Error: Directory not found: $vol.orig
+		echo Error: Directory not found: "$vol.orig"
 		return 1
 	fi
 

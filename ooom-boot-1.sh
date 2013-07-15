@@ -44,6 +44,18 @@ OM_mkfs()
 	ex1=$5
 	ex2=$6
 
+	if [ ! -b "$dev" ]
+	then
+		echo Error: Device not found: "$dev"
+		return 1
+	fi
+
+	if [ -z "$vol" ]
+	then
+		echo Error: Invalid volume: "$vol"
+		return 1
+	fi
+
 	if [ -z "$fmt" ]
 	then
 		fmt=ext4
@@ -66,12 +78,6 @@ OM_mkfs()
 
 	dev1=${dev}1
 
-	if [ ! -b "$dev" ]
-	then
-		echo Error: Device not found: "$dev"
-		continue
-	fi
-
 #	if [ "$vol" = "/boot" ]
 #	then
 #		fmt=ext2
@@ -84,8 +90,8 @@ OM_mkfs()
 
 	if [ ! -b "$dev1" ]
 	then
-		echo Error: Device not found: $dev1
-		continue
+		echo Error: Device not found: "$dev1"
+		return 1
 	fi
 
 	mkfs.$fmt $dev1
@@ -108,6 +114,11 @@ OM_mkfs()
 		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 	fi
 
+	if [ ! -d "$vol" ]
+	then
+		return 1
+	fi
+
 	if [ "$vol" = "/tmp" ]
 	then
 		echo Skipping volume $vol
@@ -123,6 +134,11 @@ OM_mkfs()
 	mkdir -p --mode $mode $mnt
 
 	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+
+	if [ ! -d "$mnt" ]
+	then
+		return 1
+	fi
 
 	mount -t $fmt -o $opt $dev1 $mnt
 
@@ -149,7 +165,7 @@ OM_mkfs()
 	return 0
 }
 
-OM_mountvol()
+OM_mvvol()
 {
 	dev=$1
 	vol=$2
@@ -160,13 +176,19 @@ OM_mountvol()
 		continue
 	fi
 
+	if [ -z "$vol" ]
+	then
+		echo Error: Invalid volume: "$vol"
+		return 1
+	fi
+
 	voldir=`echo $vol | tr -d /`
 
 	mnt=/mnt/$voldir
 
 	if [ ! -d "$mnt" ]
 	then
-		echo Error: Directory not found: $mnt
+		echo Error: Directory not found: "$mnt"
 		return 1
 	fi
 
@@ -179,6 +201,14 @@ OM_mountvol()
 
 	mv -f $vol $vol.orig
 
+	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+
+	if [ ! -d "$vol.orig" ]
+	then
+		echo Error: Directory not found: "$vol.orig"
+		return 1
+	fi
+
 	mkdir -p --mode $mode $vol
 
 	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
@@ -187,18 +217,19 @@ OM_mountvol()
 
 	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
-	if [ "$vol" = "/tmp" ]
-	then
-		return 0
-	fi
-
-	umount $mnt
-
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-
-	mount $vol
-
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+# not needed:
+#	if [ "$vol" = "/tmp" ]
+#	then
+#		return 0
+#	fi
+#
+#	umount $mnt
+#
+#	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+#
+#	mount $vol
+#
+#	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 }
 
 OM_grub_install()
@@ -214,7 +245,7 @@ OM_grub_install()
 
 	if [ ! -d "$vol" ]
 	then
-		echo Error: Directory not found: $vol
+		echo Error: Directory not found: "$vol"
 		return 1
 	fi
 
@@ -251,8 +282,6 @@ fi
 
 while IFS=$' \t' read -r -a var
 do
-	dev=${var[0]}
-	vol=${var[1]}
 	fmt=${var[2]}
 
 	if [ -z "$fmt" ]
@@ -270,7 +299,7 @@ do
 			continue
 		fi
 
-		$OOOM_APT_GET install $package
+		$OOOM_INSTALL $package
 	done
 
 done < $FSTAB_FILE
@@ -284,9 +313,9 @@ do
 	ex1=${var[4]}
 	ex2=${var[5]}
 
-	if [ "$fst" = "swap" ]
+	if [ "$fmt" = "swap" ]
 	then
-		OM_mkfs "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
+		OM_mkswap "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
 		continue
 	fi
 
@@ -298,7 +327,7 @@ do
 	dev=${var[0]}
 	vol=${var[1]}
 
-	OM_mountvol "$dev" "$vol"
+	OM_mvvol "$dev" "$vol"
 done < $FSTAB_FILE
 
 while IFS=$' \t' read -r -a var

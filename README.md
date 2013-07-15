@@ -7,6 +7,7 @@ This script will move one or more directories from one disk to another.
 
 For example, you could move:
 
+<pre>
 /boot      to /dev/sdb1 (not yet implemented/working)
 swap       to /dev/sdc
 /home      to /dev/sdd1
@@ -14,6 +15,7 @@ swap       to /dev/sdc
 /var       to /dev/sdf1
 /var/log   to /dev/sdg1
 /tmp       to /dev/sdh1
+</pre>
 
 You can define the file system and mount options, as well.
 
@@ -44,7 +46,7 @@ To install, run:
 <pre>
 $ cd out-of-one-many
 $ vi ooom.fstab
-$ vi ooom-config.sh #(optional)
+$ vi ooom-config.sh #optional
 $ sudo ./install.sh
 $ sudo shutdown -r now
 </pre>

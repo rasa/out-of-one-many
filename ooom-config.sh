@@ -17,16 +17,20 @@ OOOM_FINAL_COMMAND=""
 
 OOOM_PACKAGE_MAP="
 	btrfs,btrfs-tools
-	vfat,dosfstools
+	cramfs,util-linux
+	exfat,exfat-utils
 	ext2,e2fsprogs
 	ext3,e2fsprogs
 	ext4,e2fsprogs
+	ntfs,ntfs-3g
+	reiserfs,reiser4progs
+	vfat,dosfstools
 	xfs,xfsprogs
 "
 
 OOOM_FSTAB=ooom.fstab
 
-OOOM_APT_GET="apt-get -q -q -y --allow-unauthenticated --no-install-recommends"
+OOOM_INSTALL="apt-get -q -q -y --allow-unauthenticated --no-install-recommends install"
 
 OOOM_LOG_DIR=/.ooom-logs
 
