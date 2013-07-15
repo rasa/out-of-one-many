@@ -15,6 +15,15 @@ then
 	mkdir -p "$OOOM_LOG_DIR"
 fi
 
+LOG=$OOOM_LOG_DIR/ooom.log
+
+if [ -f "$OOOM_DIR/ooom-custom-start.sh" ]
+then
+	echo `date +'%F %T'` Executing: "$OOOM_DIR/ooom-custom-start.sh" | tee -a $LOG
+
+	"$OOOM_DIR/ooom-custom-start.sh"
+fi
+
 for i in `seq 1 1 10`
 do
 	file="$OOOM_DIR/ooom-boot-$i.sh"
@@ -24,15 +33,13 @@ do
 		continue
 	fi
 
-	LOG=$OOOM_LOG_DIR/ooom.log
-
-	echo Executing: bash -x "$file" at `date` | tee -a $LOG
+	echo `date +'%F %T'` Executing: bash -x "$file" | tee -a $LOG
 
 	LOGN=$OOOM_LOG_DIR/ooom-boot-$i.log
 
 	bash -x "$file" 2>&1 | tee -a $LOGN
 
-	echo $file returned $? at `date` | tee -a $LOG
+	echo `date +'%F %T'` $file returned $? | tee -a $LOG
 
 	mv "$file" "$file.done"
 
@@ -42,17 +49,27 @@ do
 
 	if [ -f "$nextfile" ]
 	then
-		echo Executing: shutdown -r now | tee -a $LOG
+		echo `date +'%F %T'` Executing: shutdown -r now | tee -a $LOG
 
 		shutdown -r now
 		exit
 	fi
 
-	if [ "$OOOM_FINAL_COMMAND" ]
-	then
-		echo Executing: $OOOM_FINAL_COMMAND | tee -a $LOG
-
-		$OOOM_FINAL_COMMAND
-	fi
-
+	break
 done
+
+if [ -f "$OOOM_DIR/ooom-custom-end.sh" ]
+then
+	echo `date +'%F %T'` Executing: "$OOOM_DIR/ooom-custom-end.sh" | tee -a $LOG
+
+	"$OOOM_DIR/ooom-custom-end.sh"
+	exit
+fi
+
+perl -p -e 's|\s*#?\s*/etc/ooom\.sh.*$||' /etc/rc.local
+
+echo `date +'%F %T'` Executing: shutdown -P now | tee -a $LOG
+
+shutdown -P now
+
+# eof

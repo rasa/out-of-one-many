@@ -58,6 +58,11 @@ cd "$OOOM_DIR"
 # for debugging only:
 #set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
 
+if [ -f "$OOOM_DIR/ooom-custom-boot-2-start.sh" ]
+then
+	"$OOOM_DIR/ooom-custom-boot-2-start.sh"
+fi
+
 FSTAB_FILE=$OOOM_DIR/$OOOM_FSTAB
 
 if [ ! -f "$FSTAB_FILE" ]
@@ -93,11 +98,12 @@ do
 
 	dd if=/dev/zero of=$zero bs=1M
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-
 	rm -f $zero
-
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 done
+
+if [ -f "$OOOM_DIR/ooom-custom-boot-1-end.sh" ]
+then
+	"$OOOM_DIR/ooom-custom-boot-1-end.sh"
+fi
 
 # eof

@@ -4,16 +4,13 @@ set -o allexport
 
 OOOM_ZERO_DISKS="/ /var"
 
+# doesn't work yet:
 OOOM_GRUB_VOL=
 
-# doesn't work yet:
+# eventually, we should be able to:
 #OOOM_GRUB_VOL=/boot
 # in ooom.fstab:
 #/dev/sdb /boot ext2 ro 0 1
-
-#OOOM_FINAL_COMMAND="shutdown -P now"
-
-OOOM_FINAL_COMMAND=""
 
 OOOM_PACKAGE_MAP="
 	btrfs,btrfs-tools

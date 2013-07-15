@@ -27,7 +27,11 @@ OM_mkswap()
 
 	mkswap -L swap -f $swap_partition
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+	if [ "$?" -gt 0 ]
+	then
+		echo Error: mkswap failed to create swap on $swap_partition
+		return 1
+	fi
 
 	echo "Appending \"$swap_partition none swap sw 0 0\"" to /etc/fstab
 
@@ -35,7 +39,11 @@ OM_mkswap()
 
 	swapon -v $swap_partition
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+	if [ "$?" -gt 0 ]
+	then
+		echo Error: swapon failed to mount $swap_partition
+		return 1
+	fi
 
 	swapon -a -v
 
@@ -51,10 +59,12 @@ OM_mkfs()
 	ex1=$5
 	ex2=$6
 
+	devn=$dev
+
 	if [ ! -b "$dev" ]
 	then
-		echo Error: Device not found: "$dev"
-		return 1
+		dev=${devn:0:-1}
+
 	fi
 
 	if [ -z "$vol" ]
@@ -88,42 +98,44 @@ OM_mkfs()
 		ex2=2
 	fi
 
-	dev1=${dev}1
-
 #	if [ "$vol" = "/boot" ]
 #	then
 #		fmt=ext2
 #		opt=ro
 #	fi
 
-	parted -s $dev mklabel msdos mkpart primary ext2 1M 100%
-
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-
-	if [ ! -b "$dev1" ]
+	if [ ! -b "$devn" ]
 	then
-		echo Error: Device not found: "$dev1"
+		if [ ! -b "$dev" ]
+		then
+			echo Error: Device not found: "$dev"
+			return 1
+		fi
+
+		parted -s $dev mklabel msdos mkpart primary ext2 1M 100%
+	fi
+
+	if [ ! -b "$devn" ]
+	then
+		echo Error: Device not found: "$devn"
 		return 1
 	fi
 
-	mkfs.$fmt $dev1
+	mkfs.$fmt $devn
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-
-	if [ "$EL" -gt "0" ]
+	if [ "$?" -gt 0 ]
 	then
-		return $EL
+		mkfs.$fmt failed to format $devn
+		return 1
 	fi
 
-	echo Appending "$dev1 $vol $fmt $opt 0 2" to /etc/fstab
+	echo Appending "$devn $vol $fmt $opt $ex1 $ex2" to /etc/fstab
 
-	echo "$dev1 $vol $fmt $opt 0 2" >>/etc/fstab
+	echo "$devn $vol $fmt $opt $ex1 $ex2" >>/etc/fstab
 
 	if [ ! -d "$vol" ]
 	then
 		mkdir -p "$vol"
-
-		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 	fi
 
 	if [ ! -d "$vol" ]
@@ -145,32 +157,39 @@ OM_mkfs()
 
 	mkdir -p --mode $mode $mnt
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-
 	if [ ! -d "$mnt" ]
 	then
 		return 1
 	fi
 
-	mount -t $fmt -o $opt $dev1 $mnt
+	mount -t $fmt -o $opt $devn $mnt
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+	EL=$?
+
+	if [ "$EL" -gt "0" ]
+	then
+		if [ "$fmt" = "exfat" ]
+		then
+			$OOOM_INSTALL software-properties-common
+			add-apt-repository -y ppa:relan/exfat
+			$OOOM_INSTALL exfat-fuse
+
+			mount -t $fmt -o $opt $devn $mnt
+			EL=$?
+		fi
+	fi
 
 	if [ "$EL" -gt "0" ]
 	then
 		rmdir $mnt
-		return $EL
+		return 1
 	fi
 
 	chmod $mode $mnt
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-
 	pushd $vol
 
-		find . -depth -print0 | cpio --null --sparse --make-directories --pass-through $mnt
-
-		EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+	find . -depth -print0 | cpio --null --sparse --make-directories --pass-through $mnt
 
 	popd
 
@@ -218,8 +237,6 @@ OM_mvvol()
 
 	mv -f $vol $vol.orig
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
-
 	if [ ! -d "$vol.orig" ]
 	then
 		echo Error: Directory not found: "$vol.orig"
@@ -228,11 +245,13 @@ OM_mvvol()
 
 	mkdir -p --mode $mode $vol
 
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+	if [ ! -d "$vol" ]
+	then
+		echo Error: Directory not found: "$vol"
+		return 1
+	fi
 
 	chmod $mode $vol
-
-	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 
 # not needed:
 #	if [ "$vol" = "/tmp" ]
@@ -249,7 +268,7 @@ OM_mvvol()
 #	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 }
 
-OM_grub_install()
+OM_grubdev()
 {
 	dev=$1
 	vol=$2
@@ -293,6 +312,11 @@ cd "$OOOM_DIR"
 
 # for debugging only:
 #set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
+
+if [ -f "$OOOM_DIR/ooom-custom-boot-1-start.sh" ]
+then
+	"$OOOM_DIR/ooom-custom-boot-1-start.sh"
+fi
 
 FSTAB_FILE=$OOOM_DIR/$OOOM_FSTAB
 
@@ -372,7 +396,14 @@ do
 		continue
 	fi
 
-	OM_grub_install "dev" "$vol"
+	echo NOTE: Grub installation not yet implemented, sorry.
+
+#	OM_grubdev "dev" "$vol"
 done < $FSTAB_FILE
+
+if [ -f "$OOOM_DIR/ooom-custom-boot-1-end.sh" ]
+then
+	"$OOOM_DIR/ooom-custom-boot-1-end.sh"
+fi
 
 # eof
