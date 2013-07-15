@@ -3,6 +3,13 @@
 OM_mkswap()
 {
 	dev=$1
+	vol=$2
+
+	if [ "$vol" != "none" ]
+	then
+		echo Error: Invalid swap volume name: "$vol"
+		return 1
+	fi
 
 	swapoff -a -v
 
@@ -54,6 +61,11 @@ OM_mkfs()
 	then
 		echo Error: Invalid volume: "$vol"
 		return 1
+	fi
+
+	if [ "$vol" = "none" ]
+	then
+		return 0
 	fi
 
 	if [ -z "$fmt" ]
@@ -182,6 +194,11 @@ OM_mvvol()
 		return 1
 	fi
 
+	if [ "$vol" = "none" ]
+	then
+		return 0
+	fi
+
 	voldir=`echo $vol | tr -d /`
 
 	mnt=/mnt/$voldir
@@ -243,6 +260,11 @@ OM_grub_install()
 		return 1
 	fi
 
+	if [ "$vol" = "none" ]
+	then
+		return 0
+	fi
+
 	if [ ! -d "$vol" ]
 	then
 		echo Error: Directory not found: "$vol"
@@ -278,6 +300,16 @@ if [ ! -f "$FSTAB_FILE" ]
 then
 	echo File not found: $FSTAB_FILE
 	exit 1
+fi
+
+# https://bugs.launchpad.net/ubuntu/+source/ntfs-3g/+bug/1148541
+
+if [ ! -L /sbin/mkfs.ntfs ]
+then
+	if [ -f /sbin/mkntfs ]
+	then
+		ln -s /sbin/mkntfs /sbin/mkfs.ntfs
+	fi
 fi
 
 while IFS=$' \t' read -r -a var

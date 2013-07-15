@@ -14,3 +14,8 @@ Then, if `/dev/sdd1` doesn't exist, but `/dev/sdd` does, then
 automatically partition `/dev/sdd`.
 
 * Test other file systems: jfs, reiser, zfs, exfat, ntfs, etc.
+
+* Add shorthand install method:
+<pre>
+wget -O - http://goo.gl/lsdjf | sh
+</pre>

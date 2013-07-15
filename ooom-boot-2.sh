@@ -5,6 +5,11 @@ OM_rmbackup()
 	dev=$1
 	vol=$2
 
+	if [ "$vol" = "none" ]
+	then
+		return 0
+	fi
+
 	if [ ! -b "$dev" ]
 	then
 		echo Error: Device not found: "$dev"
