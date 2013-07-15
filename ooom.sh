@@ -24,7 +24,7 @@ then
 	"$OOOM_DIR/ooom-custom-start.sh"
 fi
 
-for i in `seq 1 1 10`
+for i in 1 2
 do
 	file="$OOOM_DIR/ooom-boot-$i.sh"
 
@@ -52,24 +52,24 @@ do
 		echo `date +'%F %T'` Executing: shutdown -r now | tee -a $LOG
 
 		shutdown -r now
-		exit
+		exit 0
 	fi
 
 	break
 done
+
+perl -pi.orig -e 's|\s*#?\s*/etc/ooom\.sh.*$||' /etc/rc.local
 
 if [ -f "$OOOM_DIR/ooom-custom-end.sh" ]
 then
 	echo `date +'%F %T'` Executing: "$OOOM_DIR/ooom-custom-end.sh" | tee -a $LOG
 
 	"$OOOM_DIR/ooom-custom-end.sh"
-	exit
+	exit 0
 fi
-
-perl -p -e 's|\s*#?\s*/etc/ooom\.sh.*$||' /etc/rc.local
 
 echo `date +'%F %T'` Executing: shutdown -P now | tee -a $LOG
 
-shutdown -P now
+#shutdown -P now
 
 # eof
