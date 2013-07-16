@@ -33,11 +33,11 @@ do
 		continue
 	fi
 
-	echo `date +'%F %T'` Executing: bash -x "$file" | tee -a $LOG
+	echo `date +'%F %T'` Executing: bash "$file" | tee -a $LOG
 
 	LOGN=$OOOM_LOG_DIR/ooom-boot-$i.log
 
-	bash -x "$file" 2>&1 | tee -a $LOGN
+	bash "$file" 2>&1 | tee -a $LOGN
 
 	echo `date +'%F %T'` $file returned $? | tee -a $LOG
 

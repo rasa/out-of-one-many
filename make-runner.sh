@@ -19,6 +19,6 @@ then
 	MAKESELF=`which makeself.sh 2>/dev/null || true`
 fi
 
-$MAKESELF --notemp out-of-one-many ooom.run "Out of one, many: Move and mount directories to different disks"
+$MAKESELF --notemp out-of-one-many ooom.run "Out of one, many: Move directories to different partitions"
 
 popd >/dev/null

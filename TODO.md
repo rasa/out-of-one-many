@@ -1,21 +1,22 @@
-todo list
-=========
+To do list
+==========
 
-* Move from
-<pre>
-/dev/sdd /home
-</pre>
-to
-<pre>
-/dev/sdd1 /home
-</pre>
-to be more in keeping with `/etc/fstab`.
-Then, if `/dev/sdd1` doesn't exist, but `/dev/sdd` does, then
-automatically partition `/dev/sdd`.
+* Add suport for comments in ooom.fstab
 
-* Test other file systems: jfs, reiser, zfs, exfat, ntfs, etc.
+* Add a `ooom-check.sh` script
 
-* Add shorthand install method:
+* Add a `ooom-prepare.sh` script
+
+* Add support for non-apt-get systems
+
+* Add a `ooom.parted` file:
 <pre>
-wget -O - http://goo.gl/lsdjf | sh
+/dev/sdb1 100% ext2 set 1 boot on
+/dev/sdc1 100% swap
+/dev/sdd1 33%
+/dev/sdd2 66%
 </pre>
+
+* Research: `sudo /etc/init.d/unattended-upgrades stop`
+
+* Support for other file systems: `zfs`, etc.

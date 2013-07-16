@@ -1,14 +1,12 @@
 Out of one, many (ex uno, plures)
-==========
+=================================
 
-Move directories to different disks.
+Out-of-one-many (ooom) moves one or more directories to different partitions, via a single fstab-like configuration file.
 
-This script will move one or more directories from one disk to another, via a single `ooom.fstab` configuration file.
-
-For example, if you updated `ooom.fstab` with
+For example, with an `ooom.fstab` file containing:
 
 <pre>
-/dev/sdb none swap
+/dev/sdb1 none swap
 /dev/sdc1 /home
 /dev/sdd1 /usr/local ext2
 /dev/sde1 /var
@@ -16,20 +14,22 @@ For example, if you updated `ooom.fstab` with
 /dev/sdg1 /mnt/sdg xfs rw,noatime
 </pre>
 
-ooom will partition, format, and copy the following directories on `/dev/sda`:
+Ooom will partition, and format the new disks (sdb-sdg), and then copy the following directories:
 
 <pre>
 /home      to /dev/sdc1
 /usr/local to /dev/sdd1 (formatted as ext2)
 /var       to /dev/sde1
-/tmp       to /dev/sdf1
+/tmp       to /dev/sdf1 (/tmp is created on /dev/sdf1, but the contents are not copied)
 </pre>
 
-It will also create a swapspace on `dev/sdb`.
+Ooom will also create swapspace and mount it on `dev/sdb`.
 
-Additionally, it will partition `/dev/sdg`, and format `dev/sdg1` as `xfs`, and mount it at `/mnt/sdg` (creating it, if it doesn't exist).
+Additionally, it will partition `/dev/sdg`, and format `/dev/sdg1` as `xfs`, and mount it at `/mnt/sdg` (creating the directory, if it does not exist).
 
-Lastly, it will delete the original directories, that were mounted on `/dev/sda`, and zero the free space recovered.
+Lastly, it will reboot the system, and for each directory that mounts successfully on the new partition,
+it will delete the original directory, and zero the free space recovered on the partition that `/` is mounted on.
+Finally, it will shutdown (power off) the system.
 
 ## Usage
 
@@ -42,15 +42,14 @@ $ git clone https://github.com/rasa/out-of-one-many.git
 Alternatively, you may download ooom via:
 
 <pre>
-wget https://raw.github.com/rasa/out-of-one-many/master/ooom.run
-sh ./ooom.run
+$ wget https://raw.github.com/rasa/out-of-one-many/master/ooom.run
+$ sh ./ooom.run
 </pre>
 
 or the equivalent, but shorter:
 
 <pre>
-wget http://goo.gl/7FEJe
-sh ./7FEJe
+$ wget http://goo.gl/7FEJe | sh
 </pre>
 
 To install, run:
@@ -63,7 +62,37 @@ $ sudo ./install.sh
 $ sudo shutdown -r now
 </pre>
 
-Your system will reboot, and ooom will run.
+Your system will reboot, and ooom will run automatically, and will shutwon (power off) the system when done.
+
+## Dependencies
+
+	* apt-get (Debian, Ubuntu, Mint, etc.)
+	* sudo access
+	* Internet access (only to install packages needed by file systems)
+	* parted
+	* perl
+	* util-linux (provides mkswap)
+	* wget
+
+Ooom will install any packages needed for any specific file system.
+
+## Notes
+
+Tested with the following filesystems:
+
+<pre>
+btrfs:   works
+exfat:   works
+ext2:    works
+ext3:    works
+ext4:    works
+jfs:     works
+ntfs:    works
+reiser4: fails: Warn : Linux 3.8.0-26-generic is detected. Reiser4 does not support such a platform. Use -f to force over.
+swap:    works
+vfat:    works
+xfs:     works
+</pre>
 
 ## License
 

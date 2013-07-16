@@ -5,6 +5,14 @@ OM_mkswap()
 	dev=$1
 	vol=$2
 
+	devn=$dev
+
+	if [ ! -b "$dev" ]
+	then
+		dev=${devn:0:-1}
+
+	fi
+
 	if [ "$vol" != "none" ]
 	then
 		echo Error: Invalid swap volume name: "$vol"
@@ -15,33 +23,37 @@ OM_mkswap()
 
 	perl -pi.orig -e 's/^(.*none\s+swap\s+.*)$/#\1/;' /etc/fstab
 
+	echo Partitioning $dev as linux-swap ...
+
 	parted -s $dev mklabel msdos mkpart primary linux-swap 1M 100%
 
-	swap_partition=${1}1
-
-	if [ ! -b "$swap_partition" ]
+	if [ ! -b "$devn" ]
 	then
-		echo Error: Device not found: "$swap_partition"
+		echo Error: Device not found: "$devn"
 		return 1
 	fi
 
-	mkswap -L swap -f $swap_partition
+	echo Creating swap on $devn ...
+
+	mkswap -L swap -f $devn
 
 	if [ "$?" -gt 0 ]
 	then
-		echo Error: mkswap failed to create swap on $swap_partition
+		echo Error: mkswap failed to create swap on $devn
 		return 1
 	fi
 
-	echo "Appending \"$swap_partition none swap sw 0 0\"" to /etc/fstab
+	echo "Appending \"$devn none swap sw 0 0\"" to /etc/fstab
 
-	echo "$swap_partition none swap sw 0 0" >>/etc/fstab
+	echo "$devn none swap sw 0 0" >>/etc/fstab
 
-	swapon -v $swap_partition
+	echo Mounting swap on $devn ...
+
+	swapon -v $devn
 
 	if [ "$?" -gt 0 ]
 	then
-		echo Error: swapon failed to mount $swap_partition
+		echo Error: swapon failed to mount $devn
 		return 1
 	fi
 
@@ -112,6 +124,8 @@ OM_mkfs()
 			return 1
 		fi
 
+		echo Partitioning $dev as ext2 ...
+
 		parted -s $dev mklabel msdos mkpart primary ext2 1M 100%
 	fi
 
@@ -121,7 +135,18 @@ OM_mkfs()
 		return 1
 	fi
 
-	mkfs.$fmt $devn
+	echo Formatting $devn as $fmt ...
+
+	case "$fmt" in
+		jfs)
+			MKFS_OPTS=-q
+			;;
+		*)
+			MKFS_OPTS=
+			;;
+	esac
+
+	mkfs.$fmt $MKFS_OPTS $devn
 
 	if [ "$?" -gt 0 ]
 	then
@@ -129,12 +154,13 @@ OM_mkfs()
 		return 1
 	fi
 
-	echo Appending "$devn $vol $fmt $opt $ex1 $ex2" to /etc/fstab
+	echo Appending "$devn $vol $fmt $opt $ex1 $ex2" to /etc/fstab ...
 
 	echo "$devn $vol $fmt $opt $ex1 $ex2" >>/etc/fstab
 
 	if [ ! -d "$vol" ]
 	then
+		echo Creating directory "$vol" ...
 		mkdir -p "$vol"
 	fi
 
@@ -143,11 +169,20 @@ OM_mkfs()
 		return 1
 	fi
 
+	if [ "$vol" = "/tmp" ]
+	then
+		mode=1777
+	else
+		mode=0755
+	fi
+
 	voldir=`echo $vol | tr -d /`
 
-	mnt=/mnt/$voldir
+	mnt=$OOOM_MOUNT/$voldir
 
-	mkdir -p --mode 0755 $mnt
+	echo Creating directory "$mnt" ...
+
+	mkdir -p --mode $mode $mnt
 
 	if [ ! -d "$mnt" ]
 	then
@@ -160,6 +195,8 @@ OM_mkfs()
 		return 0
 	fi
 
+	echo Mounting "$devn" on "$mnt" as "$fmt" using "$opt" ...
+
 	mount -t $fmt -o $opt $devn $mnt
 
 	EL=$?
@@ -171,6 +208,8 @@ OM_mkfs()
 			$OOOM_INSTALL software-properties-common
 			add-apt-repository -y ppa:relan/exfat
 			$OOOM_INSTALL exfat-fuse
+
+			echo Mounting "$devn" on "$mnt" as "$fmt" using "$opt" ...
 
 			mount -t $fmt -o $opt $devn $mnt
 			EL=$?
@@ -185,11 +224,13 @@ OM_mkfs()
 
 	chmod $mode $mnt
 
-	pushd $vol
+	pushd $vol >/dev/null
+
+	echo Copying "$vol" to "$mnt" ...
 
 	find . -depth -print0 | cpio --null --sparse --make-directories --pass-through $mnt
 
-	popd
+	popd >/dev/null
 
 	return 0
 }
@@ -218,13 +259,15 @@ OM_mvvol()
 
 	voldir=`echo $vol | tr -d /`
 
-	mnt=/mnt/$voldir
+	mnt=$OOOM_MOUNT/$voldir
 
 	if [ ! -d "$mnt" ]
 	then
 		echo Error: Directory not found: "$mnt"
 		return 1
 	fi
+
+	echo Renaming "$vol" to "$vol.orig" ...
 
 	mv -f $vol $vol.orig
 
@@ -240,6 +283,8 @@ OM_mvvol()
 	else
 		mode=0755
 	fi
+
+	echo Creating directory "$vol" ...
 
 	mkdir -p --mode $mode $vol
 
@@ -264,6 +309,26 @@ OM_mvvol()
 #	mount $vol
 #
 #	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
+}
+
+OM_chmod()
+{
+	vol=$1
+	mode=$2
+
+	if [ ! -d "$vol" ]
+	then
+		echo Error: Directory not found: "$vol"
+		return 1
+	fi
+
+	if [ -z "$mode" ]
+	then
+		echo Error: Invalid mode: "$mode"
+		return 1
+	fi
+
+	chmod $mode $vol
 }
 
 OM_grubdev()
@@ -297,7 +362,7 @@ OM_grubdev()
 	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 }
 
-set -o xtrace
+#set -o xtrace
 
 OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
 
@@ -316,15 +381,15 @@ then
 	"$OOOM_DIR/ooom-custom-boot-1-start.sh"
 fi
 
-FSTAB_FILE=$OOOM_DIR/$OOOM_FSTAB
+OOOM_FSTABS=$OOOM_DIR/$OOOM_FSTAB
 
-if [ ! -f "$FSTAB_FILE" ]
+if [ ! -f "$OOOM_FSTABS" ]
 then
-	echo File not found: $FSTAB_FILE
+	echo File not found: $OOOM_FSTABS
 	exit 1
 fi
 
-while IFS=$' \t' read -r -a var
+cat $OOOM_FSTABS | while IFS=$' \t' read -r -a var
 do
 	fmt=${var[2]}
 
@@ -345,20 +410,19 @@ do
 
 		$OOOM_INSTALL $package
 	done
-
-done < $FSTAB_FILE
+done
 
 # https://bugs.launchpad.net/ubuntu/+source/ntfs-3g/+bug/1148541
 
-if [ ! -L /sbin/mkfs.ntfs ]
+if [ ! -f /sbin/mkfs.ntfs ]
 then
 	if [ -f /sbin/mkntfs ]
 	then
-		ln -s /sbin/mkntfs /sbin/mkfs.ntfs
+		ln -fs /sbin/mkntfs /sbin/mkfs.ntfs
 	fi
 fi
 
-cat $FSTAB_FILE | while IFS=$' \t' read -r -a var
+cat $OOOM_FSTABS | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
 	vol=${var[1]}
@@ -376,7 +440,7 @@ do
 	OM_mkfs "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
 done
 
-tac $FSTAB_FILE | while IFS=$' \t' read -r -a var
+tac $OOOM_FSTABS | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
 	vol=${var[1]}
@@ -384,7 +448,15 @@ do
 	OM_mvvol "$dev" "$vol"
 done
 
-cat $FSTAB_FILE | while IFS=$' \t' read -r -a var
+for volmode in $OOOM_CHMODS
+do
+	vol=${volmode%%=*}
+	mode=${volmode#*=}
+
+	OM_chmod "$vol" "$mode"
+done
+
+cat $OOOM_FSTABS | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
 	vol=${var[1]}

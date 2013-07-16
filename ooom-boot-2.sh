@@ -24,7 +24,7 @@ OM_rmbackup()
 
 	voldir=`echo $vol | tr -d /`
 
-	mnt=/mnt/$voldir
+	mnt=$OOOM_MOUNT/$voldir
 
 	if [ -d "$mnt" ]
 	then
@@ -39,12 +39,36 @@ OM_rmbackup()
 		return 1
 	fi
 
+	echo Removing "$vol.orig" ...
+
 	rm -fr $vol.orig
 
 	EL=$? ; test "$EL" -gt 0 && echo "*** Command returned error $EL"
 }
 
-set -o xtrace
+OM_chmod()
+{
+	vol=$1
+	mode=$2
+
+	if [ ! -d "$vol" ]
+	then
+		echo Error: Directory not found: "$vol"
+		return 1
+	fi
+
+	if [ -z "$mode" ]
+	then
+		echo Error: Invalid mode: "$mode"
+		return 1
+	fi
+
+	echo Setting rights on $vol to $mode ...
+
+	chmod $mode $vol
+}
+
+#set -o xtrace
 
 OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
 
@@ -63,21 +87,32 @@ then
 	"$OOOM_DIR/ooom-custom-boot-2-start.sh"
 fi
 
-FSTAB_FILE=$OOOM_DIR/$OOOM_FSTAB
+OOOM_FSTABS=$OOOM_DIR/$OOOM_FSTAB
 
-if [ ! -f "$FSTAB_FILE" ]
+if [ ! -f "$OOOM_FSTABS" ]
 then
-	echo File not found: $FSTAB_FILE
+	echo File not found: $OOOM_FSTABS
 	exit 1
 fi
 
-cat $FSTAB_FILE | while IFS=$' \t' read -r -a var
+for volmode in $OOOM_CHMODS
 do
-	dev=${var[0]}
-	vol=${var[1]}
+	vol=${volmode%%=*}
+	mode=${volmode#*=}
 
-	OM_rmbackup "$dev" "$vol"
+	OM_chmod "$vol" "$mode"
 done
+
+if [ "$OOOM_REMOVE_BACKUPS" ]
+then
+	tac $OOOM_FSTABS | while IFS=$' \t' read -r -a var
+	do
+		dev=${var[0]}
+		vol=${var[1]}
+
+		OM_rmbackup "$dev" "$vol"
+	done
+fi
 
 # Zero out the free space to save space in the final image
 
@@ -96,10 +131,17 @@ do
 
 	zero=${vol}ZERO_FREE_SPACE
 
+	echo Zeroing free space on $vol ...
+
 	dd if=/dev/zero of=$zero bs=1M
 
 	rm -f $zero
 done
+
+if [ -d "$OOOM_MOUNT" ]
+then
+	rmdir "$OOOM_MOUNT"
+fi
 
 if [ -f "$OOOM_DIR/ooom-custom-boot-1-end.sh" ]
 then

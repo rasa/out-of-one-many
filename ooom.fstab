@@ -1,4 +1,4 @@
-/dev/sdc none swap sw 0 0
+/dev/sdc1 none swap sw 0 0
 /dev/sdd1 /home
 /dev/sde1 /opt
 /dev/sdf1 /srv
@@ -15,4 +15,4 @@
 /dev/sdq1 /mnt/sdq xfs rw,noatime
 /dev/sdr1 /mnt/sdr exfat
 /dev/sds1 /mnt/sds ntfs
-/dev/sdt1 /mnt/sdt reiser4
+/dev/sdt1 /mnt/sdt jfs
