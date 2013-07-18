@@ -4,6 +4,7 @@ OM_mkswap()
 {
 	dev=$1
 	vol=$2
+	uuid=$7
 
 	devn=$dev
 
@@ -35,7 +36,14 @@ OM_mkswap()
 
 	echo Creating swap on $devn ...
 
-	mkswap -L swap -f $devn
+	MKSWAP_OPTS=
+
+	if [ "$uuid" ]
+	then
+		MKSWAP_OPTS="$MKSWAP_OPTS -U $uuid"
+	fi
+
+	mkswap -L swap $MKSWAP_OPTS -f $devn
 
 	if [ "$?" -gt 0 ]
 	then
@@ -70,6 +78,7 @@ OM_mkfs()
 	opt=$4
 	ex1=$5
 	ex2=$6
+	uuid=$7
 
 	devn=$dev
 
@@ -137,12 +146,34 @@ OM_mkfs()
 
 	echo Formatting $devn as $fmt ...
 
+	MKFS_OPTS=
+
 	case "$fmt" in
+		ext2|ext3|ext4)
+			if [ "$uuid" ]
+			then
+				MKFS_OPTS="-U $uuid"
+			fi
+			;;
+		exfat)
+			# 16 chars max?
+			#MKFS_OPTS="-n $label"
+			;;
 		jfs)
 			MKFS_OPTS=-q
 			;;
-		*)
-			MKFS_OPTS=
+		ntfs)
+			# 16 chars max?
+			#MKFS_OPTS="-L $label"
+			MKFS_OPTS=-f
+			;;
+		vfat)
+			# 16 chars max?
+			#MKFS_OPTS="-n $label"
+			;;
+		xfs)
+			# 12 chars max
+			#MKFS_OPTS="-L $label"
 			;;
 	esac
 
@@ -389,6 +420,11 @@ then
 	exit 1
 fi
 
+if [ -f /etc/init.d/unattended-upgrades ]
+then
+	service unattended-upgrades stop
+fi
+
 cat $OOOM_FSTABS | while IFS=$' \t' read -r -a var
 do
 	fmt=${var[2]}
@@ -422,6 +458,8 @@ then
 	fi
 fi
 
+disk_id=1
+
 cat $OOOM_FSTABS | while IFS=$' \t' read -r -a var
 do
 	dev=${var[0]}
@@ -431,14 +469,25 @@ do
 	ex1=${var[4]}
 	ex2=${var[5]}
 
+	if [ "$OOOM_UUID" ]
+	then
+		hex_disk_id=$(printf "%02x" $disk_id)
+		uuid=${OOOM_UUID:0:-2}$hex_disk_id
+		disk_id=$(($disk_id + 1))
+	else
+		uuid=
+	fi
+
 	if [ "$fmt" = "swap" ]
 	then
-		OM_mkswap "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
+		OM_mkswap "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2" "$uuid"
 		continue
 	fi
 
-	OM_mkfs "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2"
+	OM_mkfs "$dev" "$vol" "$fmt" "$opt" "$ex1" "$ex2" "$uuid"
 done
+
+parted -l 2>&1 >$OOOM_LOG_DIR/parted.log
 
 tac $OOOM_FSTABS | while IFS=$' \t' read -r -a var
 do

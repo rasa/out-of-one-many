@@ -4,11 +4,15 @@ OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
 
 pushd "$OOOM_DIR" >/dev/null
 
-rm -fr out-of-one-many ooom.run
+TMP_DIR=out-of-one-many
 
-mkdir -p out-of-one-many
+rm -fr $TMP_DIR *.run
 
-git archive master | tar -x -C out-of-one-many
+mkdir -p $TMP_DIR
+
+git archive master | tar -x -C $TMP_DIR
+
+rm -f $TMP_DIR/*.run
 
 MAKESELF=`which makeself.sh 2>/dev/null || true`
 
@@ -19,6 +23,10 @@ then
 	MAKESELF=`which makeself.sh 2>/dev/null || true`
 fi
 
-$MAKESELF --notemp out-of-one-many ooom.run "Out of one, many: Move directories to different partitions"
+$MAKESELF --notemp $TMP_DIR ooom.run "Out of one, many: Move directories to different partitions"
+
+$MAKESELF --notemp $TMP_DIR autorun.run "Out of one, many: Move directories to different partitions" ./autorun.sh
+
+rm -fr $TMP_DIR
 
 popd >/dev/null

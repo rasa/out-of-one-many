@@ -21,6 +21,8 @@ OOOM_CHMODS="
 /tmp=1777
 "
 
+OOOM_UUID=00000000-0000-0000-0000-000000000000
+
 OOOM_PACKAGE_MAP="
 	btrfs,btrfs-tools
 	exfat,exfat-utils

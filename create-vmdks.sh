@@ -10,6 +10,16 @@ fi
 
 VDISKMANAGER_OPTIONS="-s 64GB -t 0"
 
+VMWARE_VDISKMANAGER=$(which vmware-vdiskmanager 2>/dev/null || true)
+
+if [ -z "$VMWARE_VDISKMANAGER" ]
+then
+	if [ -d "/cygdrive/c/Program Files (x86)/VMware/VMware Workstation" ]
+	then
+		PATH="$PATH:/cygdrive/c/Program Files (x86)/VMware/VMware Workstation"
+	fi
+fi
+
 vmx=`ls -1 *.vmx 2>/dev/null | head -n 1`
 
 if [ ! -f "$vmx" ]
@@ -61,8 +71,8 @@ do
 		exit 3
 	fi
 
-	echo vmware-vdiskmanager -c $VDISKMANAGER_OPTIONS $* $vmdk
-	vmware-vdiskmanager -c $VDISKMANAGER_OPTIONS $* $vmdk
+	echo $VMWARE_VDISKMANAGER -c $VDISKMANAGER_OPTIONS $* $vmdk
+	$VMWARE_VDISKMANAGER -c $VDISKMANAGER_OPTIONS $* $vmdk
 
 	echo -e "scsi$bus:$dev.present = \"TRUE\"" >>$vmx
 	echo -e "scsi$bus:$dev.fileName = \"$vmdk\"" >>$vmx

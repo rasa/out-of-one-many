@@ -1,7 +1,7 @@
 Out of one, many (ex uno, plures)
 =================================
 
-Out-of-one-many (ooom) moves one or more directories to different partitions, via a single fstab-like configuration file.
+Out-of-one-many (ooom) moves directories to different partitions, via a single fstab-like configuration file.
 
 For example, with an `ooom.fstab` file containing:
 
@@ -14,7 +14,7 @@ For example, with an `ooom.fstab` file containing:
 /dev/sdg1 /mnt/sdg xfs rw,noatime
 </pre>
 
-Ooom will partition, and format the new disks (sdb-sdg), and then copy the following directories:
+Ooom will partition, and format the new disks (`/dev/sdb`-`/dev/sdg`), and then copy the following directories:
 
 <pre>
 /home      to /dev/sdc1
@@ -23,7 +23,7 @@ Ooom will partition, and format the new disks (sdb-sdg), and then copy the follo
 /tmp       to /dev/sdf1 (/tmp is created on /dev/sdf1, but the contents are not copied)
 </pre>
 
-Ooom will also create swapspace and mount it on `dev/sdb`.
+Ooom will also create swapspace and mount it on `/dev/sdb1`.
 
 Additionally, it will partition `/dev/sdg`, and format `/dev/sdg1` as `xfs`, and mount it at `/mnt/sdg` (creating the directory, if it does not exist).
 
@@ -49,7 +49,7 @@ $ sh ./ooom.run
 or the equivalent, but shorter:
 
 <pre>
-$ wget http://goo.gl/7FEJe | sh
+$ wget -O - http://goo.gl/qse72 | sh
 </pre>
 
 To install, run:
@@ -64,7 +64,13 @@ $ sudo shutdown -r now
 
 Your system will reboot, and ooom will run automatically, and will shutwon (power off) the system when done.
 
+## Limitations
+
+Ooom does not yet allow you to move the `/boot` directory.
+
 ## Dependencies
+
+Ooom depends on the following:
 
 	* apt-get (Debian, Ubuntu, Mint, etc.)
 	* sudo access
@@ -74,24 +80,33 @@ Your system will reboot, and ooom will run automatically, and will shutwon (powe
 	* util-linux (provides mkswap)
 	* wget
 
-Ooom will install any packages needed for any specific file system.
+Ooom will install any packages needed by a specific file system.
 
 ## Notes
 
-Tested with the following filesystems:
+Ooom works with the following filesystems:
+
+	* btrfs
+	* exfat: using PPA package ppa:relan/exfat
+	* ext2
+	* ext3
+	* ext4
+	* jfs
+	* ntfs
+	* swap
+	* vfat
+	* xfs
+
+Ooom does not yet work with the following file systems:
+
+	* reiser4: Linux 3.8.0-26-generic is detected. Reiser4 does not support such a platform.
+
+## Automated testing
+
+To download and automatically run ooom, with the default `ooom.fstab, run:
 
 <pre>
-btrfs:   works
-exfat:   works
-ext2:    works
-ext3:    works
-ext4:    works
-jfs:     works
-ntfs:    works
-reiser4: fails: Warn : Linux 3.8.0-26-generic is detected. Reiser4 does not support such a platform. Use -f to force over.
-swap:    works
-vfat:    works
-xfs:     works
+$ wget -O - http://goo.gl/9sZgS | sh
 </pre>
 
 ## License
@@ -111,7 +126,7 @@ submit any patches there through the fork and pull request process.
 
 ## Links
 
-  * Makeself[3] was used to create the self extracting ooom.run file.
+  * [Makeself][3] was used to create the self extracting ooom.run file.
 
 ## Contact
 

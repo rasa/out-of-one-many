@@ -1,0 +1,18 @@
+/dev/sdc1 none swap sw 0 0
+/dev/sdd1 /home
+/dev/sde1 /opt
+/dev/sdf1 /srv
+/dev/sdg1 /tmp
+/dev/sdh1 /usr/local
+/dev/sdi1 /var
+/dev/sdj1 /var/lib/mysql
+/dev/sdk1 /var/log
+/dev/sdl1 /mnt/sdl btrfs
+/dev/sdm1 /mnt/sdm ext2
+/dev/sdn1 /mnt/sdn ext3
+/dev/sdo1 /mnt/sdo ext4
+/dev/sdp1 /mnt/sdp vfat
+/dev/sdq1 /mnt/sdq xfs rw,noatime
+/dev/sdr1 /mnt/sdr exfat
+/dev/sds1 /mnt/sds ntfs
+/dev/sdt1 /mnt/sdt jfs

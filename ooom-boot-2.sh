@@ -95,6 +95,8 @@ then
 	exit 1
 fi
 
+cat /proc/mounts >$OOOM_LOG_DIR/mounts.log
+
 for volmode in $OOOM_CHMODS
 do
 	vol=${volmode%%=*}
