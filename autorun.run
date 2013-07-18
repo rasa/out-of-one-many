@@ -8,7 +8,7 @@ MD5="bc3f5ea4cca6abb4366e1c60fee1fa52"
 TMPROOT=${TMPDIR:=/tmp}
 
 label="Out of one, many: Move directories to different partitions"
-script=""
+script="./autorun.sh"
 scriptargs=""
 licensetxt=""
 targetdir="out-of-one-many"
@@ -156,7 +156,7 @@ MS_Check()
     if test "$quiet" = "n";then
     	MS_Printf "Verifying archive integrity..."
     fi
-    offset=`head -n 498 "$1" | wc -c | tr -d " "`
+    offset=`head -n 499 "$1" | wc -c | tr -d " "`
     verb=$2
     i=1
     for s in $filesizes
@@ -241,8 +241,9 @@ do
 	echo Build command was: "/home/ross/out-of-one-many/makeself/makeself.sh \\
     \"--notemp\" \\
     \"out-of-one-many\" \\
-    \"ooom.run\" \\
-    \"Out of one, many: Move directories to different partitions\""
+    \"autorun.run\" \\
+    \"Out of one, many: Move directories to different partitions\" \\
+    \"./autorun.sh\""
 	if test x$script != x; then
 	    echo Script run after extraction:
 	    echo "    " $script $scriptargs
@@ -268,7 +269,7 @@ do
 	echo CRCsum=\"$CRCsum\"
 	echo MD5sum=\"$MD5\"
 	echo OLDUSIZE=76
-	echo OLDSKIP=499
+	echo OLDSKIP=500
 	exit 0
 	;;
     --lsm)
@@ -279,7 +280,7 @@ EOLSM
 	;;
     --list)
 	echo Target directory: $targetdir
-	offset=`head -n 498 "$0" | wc -c | tr -d " "`
+	offset=`head -n 499 "$0" | wc -c | tr -d " "`
 	for s in $filesizes
 	do
 	    MS_dd "$0" $offset $s | eval "gzip -cd" | UnTAR t
@@ -288,7 +289,7 @@ EOLSM
 	exit 0
 	;;
 	--tar)
-	offset=`head -n 498 "$0" | wc -c | tr -d " "`
+	offset=`head -n 499 "$0" | wc -c | tr -d " "`
 	arg1="$2"
     if ! shift 2; then MS_Help; exit 1; fi
 	for s in $filesizes
@@ -428,7 +429,7 @@ location="`pwd`"
 if test x$SETUP_NOCHECK != x1; then
     MS_Check "$0"
 fi
-offset=`head -n 498 "$0" | wc -c | tr -d " "`
+offset=`head -n 499 "$0" | wc -c | tr -d " "`
 
 if test x"$verbose" = xy; then
 	MS_Printf "About to extract 76 KB in $tmpdir ... Proceed ? [Y/n] "
