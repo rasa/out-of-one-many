@@ -1,3 +1,7 @@
+# if the /boot folder isn't already on a separate partition,
+# enabling the following line will keep the system from booting
+# (you'll get a 'grub rescue' prompt, instead):
+/dev/sdb1 /boot ext2 ro 0 2
 /dev/sdc1 none swap sw 0 0
 /dev/sdd1 /home
 /dev/sde1 /opt
@@ -7,12 +11,13 @@
 /dev/sdi1 /var
 /dev/sdj1 /var/lib/mysql
 /dev/sdk1 /var/log
-/dev/sdl1 /mnt/sdl btrfs
-/dev/sdm1 /mnt/sdm ext2
-/dev/sdn1 /mnt/sdn ext3
-/dev/sdo1 /mnt/sdo ext4
-/dev/sdp1 /mnt/sdp vfat
-/dev/sdq1 /mnt/sdq xfs rw,noatime
-/dev/sdr1 /mnt/sdr exfat
-/dev/sds1 /mnt/sds ntfs
-/dev/sdt1 /mnt/sdt jfs
+/dev/sdl1 /mnt/sdl1 btrfs
+/dev/sdm1 /mnt/sdm1 exfat
+/dev/sdn1 /mnt/sdn1 ext2
+/dev/sdo1 /mnt/sdo1 ext3
+/dev/sdp1 /mnt/sdp1 ext4
+/dev/sdq1 /mnt/sdq1 jfs
+/dev/sdr1 /mnt/sdr1 ntfs
+/dev/sds1 /mnt/sds1 vfat
+/dev/sdt1 /mnt/sdt1 xfs rw,noatime
+

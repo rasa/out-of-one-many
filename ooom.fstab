@@ -1,9 +1,14 @@
+# if the /boot folder isn't already on a separate partition,
+# enabling the following line will keep the system from booting
+# (you'll get a 'grub rescue' prompt, instead):
+#/dev/sdb1 /boot ext2 ro 0 2
 /dev/sdc1 none swap sw 0 0
 /dev/sdd1 /home
-/dev/sde1 /opt
-/dev/sdf1 /srv
-/dev/sdg1 /tmp
-/dev/sdh1 /usr/local
-/dev/sdi1 /var
-/dev/sdj1 /var/lib/mysql
-/dev/sdk1 /var/log
+# some common examples:
+#/dev/sde1 /opt
+#/dev/sdf1 /srv
+#/dev/sdg1 /tmp
+#/dev/sdh1 /usr
+#/dev/sdi1 /usr/local
+#/dev/sdj1 /var
+#/dev/sdk1 /var/log

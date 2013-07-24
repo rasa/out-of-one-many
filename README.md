@@ -57,7 +57,7 @@ To install, run:
 <pre>
 $ cd out-of-one-many
 $ vi ooom.fstab
-$ vi ooom-config.sh #optional
+$ vi ooom-config.sh # optional
 $ sudo ./install.sh
 $ sudo shutdown -r now
 </pre>
@@ -72,13 +72,13 @@ Ooom does not yet allow you to move the `/boot` directory.
 
 Ooom depends on the following:
 
-	* apt-get (Debian, Ubuntu, Mint, etc.)
-	* sudo access
-	* Internet access (only to install packages needed by file systems)
-	* parted
-	* perl
-	* util-linux (provides mkswap)
-	* wget
+  * apt-get (Debian, Ubuntu, Mint, etc.)
+  * sudo access
+  * Internet access (only to install packages needed by file systems)
+  * parted
+  * perl
+  * util-linux (provides mkswap)
+  * wget
 
 Ooom will install any packages needed by a specific file system.
 
@@ -86,20 +86,20 @@ Ooom will install any packages needed by a specific file system.
 
 Ooom works with the following filesystems:
 
-	* btrfs
-	* exfat: using PPA package ppa:relan/exfat
-	* ext2
-	* ext3
-	* ext4
-	* jfs
-	* ntfs
-	* swap
-	* vfat
-	* xfs
+  * btrfs
+  * exfat: using PPA package ppa:relan/exfat
+  * ext2
+  * ext3
+  * ext4
+  * jfs
+  * ntfs
+  * swap
+  * vfat
+  * xfs
 
 Ooom does not yet work with the following file systems:
 
-	* reiser4: Linux 3.8.0-26-generic is detected. Reiser4 does not support such a platform.
+* reiser4: Linux 3.8.0-26-generic is detected. Reiser4 does not support such a platform.
 
 ## Automated testing
 

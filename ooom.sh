@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 
+OOOM_VERSION="0.1.0"
+
+echo $OOOM_VERSION >/etc/.ooom_version
+
 OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
 
 # for debugging only:
-#set | sort
+#env | sort >/ooom.log
 
 . "$OOOM_DIR/ooom-config.sh"
 
 # for debugging only:
-#set | sort | grep _ | egrep -v '^(BASH|UPSTART)_'
+#env | sort | grep _ | egrep -v '^(BASH|UPSTART)_' >/ooom2.log
 
 if [ ! -d "$OOOM_LOG_DIR" ]
 then
@@ -41,7 +45,7 @@ do
 
 	echo `date +'%F %T'` $file returned $? | tee -a $LOG
 
-	mv "$file" "$file.done"
+	mv -f "$file" "$file.disabled.sh"
 
 	j=$(($i + 1))
 
@@ -58,7 +62,7 @@ do
 	break
 done
 
-perl -pi.orig -e 's|\s*#?\s*/etc/ooom\.sh.*$||' /etc/rc.local
+perl -pi.final.ooomed -e 's|\s*#?\s*/etc/ooom\.sh.*$||' /etc/rc.local
 
 if [ -f "$OOOM_DIR/ooom-custom-end.sh" ]
 then
@@ -68,8 +72,11 @@ then
 	exit 0
 fi
 
-echo `date +'%F %T'` Executing: shutdown -P now | tee -a $LOG
+if [ "$OOOM_EXIT_COMMAND" ]
+then
+	echo `date +'%F %T'` Executing: $OOOM_EXIT_COMMAND | tee -a $LOG
 
-#shutdown -P now
+	$OOOM_EXIT_COMMAND
+fi
 
 # eof
