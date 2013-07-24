@@ -83,7 +83,7 @@ Ooom depends on the following:
 
 Ooom will install any packages needed by a specific file system.
 
-## Notes
+## Supported Filesystems
 
 Ooom works with the following filesystems:
 
