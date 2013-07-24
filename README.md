@@ -6,9 +6,9 @@ Out-of-one-many (ooom) moves directories to different partitions, via a single f
 For example, with an `ooom.fstab` file containing:
 
 <pre>
-/dev/sdb1 none swap
-/dev/sdc1 /home
-/dev/sdd1 /usr/local ext2
+/dev/sdb1 /boot ext2 ro
+/dev/sdc1 none swap sw 0 0
+/dev/sdd1 /home
 /dev/sde1 /var
 /dev/sdf1 /tmp
 /dev/sdg1 /mnt/sdg xfs rw,noatime
@@ -17,13 +17,14 @@ For example, with an `ooom.fstab` file containing:
 Ooom will partition, and format the new disks (`/dev/sdb`-`/dev/sdg`), and then copy the following directories:
 
 <pre>
-/home      to /dev/sdc1
-/usr/local to /dev/sdd1 (formatted as ext2)
-/var       to /dev/sde1
-/tmp       to /dev/sdf1 (/tmp is created on /dev/sdf1, but the contents are not copied)
+/boot      to /dev/sdb1 (formatted as ext2)
+/home      to /dev/sdd1
+/usr/local to /dev/sde1
+/var       to /dev/sdf1
+/tmp       to /dev/sdg1
 </pre>
 
-Ooom will also create swapspace and mount it on `/dev/sdb1`.
+Ooom will also create swapspace and mount it on `/dev/sdc1`.
 
 Additionally, it will partition `/dev/sdg`, and format `/dev/sdg1` as `xfs`, and mount it at `/mnt/sdg` (creating the directory, if it does not exist).
 
