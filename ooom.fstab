@@ -1,4 +1,4 @@
-# if the /boot folder isn't already on a separate partition,
+# If the /boot folder is not already on a separate partition,
 # enabling the following line will keep the system from booting
 # (you'll get a 'grub rescue' prompt, instead):
 #/dev/sdb1 /boot ext2 ro 0 2

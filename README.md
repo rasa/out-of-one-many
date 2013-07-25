@@ -37,7 +37,7 @@ Finally, it will shutdown (power off) the system.
 To download, run:
 
 <pre>
-$ git clone https://github.com/rasa/out-of-one-many.git
+$ git clone git@github.com:rasa/out-of-one-many.git
 </pre>
 
 Alternatively, you may download ooom via:
@@ -67,7 +67,10 @@ Your system will reboot, and ooom will run automatically, and will shutwon (powe
 
 ## Limitations
 
-Ooom does not yet allow you to move the `/boot` directory.
+If the `/boot` directory is not already on a separate partition,
+attempting to move the folder to new parition will keep your system from booting.
+Instead, you'll get a `grub rescue>` prompt.
+Hopefully, this issue will be addressed in a future version.
 
 ## Dependencies
 
@@ -75,13 +78,14 @@ Ooom depends on the following:
 
   * apt-get (Debian, Ubuntu, Mint, etc.)
   * sudo access
-  * Internet access (only to install packages needed by file systems)
+  * Internet access (only to install packages needed by file systems, that have not previously been installed)
   * parted
   * perl
   * util-linux (provides mkswap)
   * wget
+  * rsync (optional)
 
-Ooom will install any packages needed by a specific file system.
+Ooom will automatically install any packages needed by a specific file system.
 
 ## Supported Filesystems
 
