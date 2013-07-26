@@ -47,10 +47,11 @@ $ wget https://raw.github.com/rasa/out-of-one-many/master/ooom.run
 $ sh ./ooom.run
 </pre>
 
-or the equivalent, but shorter:
+or the slightly less verbose, but equivalent:
 
 <pre>
-$ wget -O - http://goo.gl/qse72 | sh
+$ wget http://goo.gl/qse72
+$ sh ./qse72
 </pre>
 
 To install, run:
@@ -105,14 +106,6 @@ Ooom works with the following filesystems:
 Ooom does not yet work with the following file systems:
 
 * reiser4: Linux 3.8.0-26-generic is detected. Reiser4 does not support such a platform.
-
-## Automated testing
-
-To download and automatically run ooom, with the default `ooom.fstab, run:
-
-<pre>
-$ wget -O - http://goo.gl/9sZgS | sh
-</pre>
 
 ## License
 
