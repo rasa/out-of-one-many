@@ -23,9 +23,9 @@ then
 	MAKESELF=`which makeself.sh 2>/dev/null || true`
 fi
 
-$MAKESELF --notemp $TMP_DIR ooom.run "Out of one, many: Move directories to different partitions"
+$MAKESELF --nomd5 --nocrc --noprogress --nox11 --nowait --notemp $TMP_DIR ooom.run "Out of one, many: Move directories to different partitions"
 
-$MAKESELF --notemp $TMP_DIR autorun.run "Out of one, many: Move directories to different partitions" ./autorun.sh
+$MAKESELF --nomd5 --nocrc --noprogress --nox11 --nowait --notemp $TMP_DIR autorun.run "Out of one, many: Move directories to different partitions" ./autorun.sh
 
 rm -fr $TMP_DIR
 
