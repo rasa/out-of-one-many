@@ -4,7 +4,7 @@ OOOM_VERSION="0.1.0"
 
 echo $OOOM_VERSION >/etc/.ooom_version
 
-OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # for debugging only:
 #env | sort >/ooom.log
@@ -72,11 +72,11 @@ then
 	exit 0
 fi
 
-if [ "$OOOM_EXIT_COMMAND" ]
+if [ "$OOOM_FINAL_COMMAND" ]
 then
-	echo `date +'%F %T'` Executing: $OOOM_EXIT_COMMAND | tee -a $LOG
+	echo `date +'%F %T'` Executing: $OOOM_FINAL_COMMAND | tee -a $LOG
 
-	$OOOM_EXIT_COMMAND
+	$OOOM_FINAL_COMMAND
 fi
 
 # eof

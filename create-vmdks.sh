@@ -3,22 +3,12 @@
 #set -x
 set -e
 
-if [ -z "$disks" ]
+if [ -z "$vmdks" ]
 then
-	disks=25
+	vmdks=25
 fi
 
 VDISKMANAGER_OPTIONS="-s 64GB -t 0"
-
-VMWARE_VDISKMANAGER=$(which vmware-vdiskmanager 2>/dev/null || true)
-
-if [ -z "$VMWARE_VDISKMANAGER" ]
-then
-	if [ -d "/cygdrive/c/Program Files (x86)/VMware/VMware Workstation" ]
-	then
-		PATH="$PATH:/cygdrive/c/Program Files (x86)/VMware/VMware Workstation"
-	fi
-fi
 
 vmx=`ls -1 *.vmx 2>/dev/null | head -n 1`
 
@@ -47,7 +37,7 @@ dev=1
 
 prefix=
 
-for i in `seq 1 $disks`
+for i in `seq 1 $vmdks`
 do
 	remainder=$(($i % 26))
 
@@ -71,8 +61,8 @@ do
 		exit 3
 	fi
 
-	echo $VMWARE_VDISKMANAGER -c $VDISKMANAGER_OPTIONS $* $vmdk
-	$VMWARE_VDISKMANAGER -c $VDISKMANAGER_OPTIONS $* $vmdk
+	echo vmware-vdiskmanager -c $VDISKMANAGER_OPTIONS $* $vmdk
+	vmware-vdiskmanager -c $VDISKMANAGER_OPTIONS $* $vmdk
 
 	echo -e "scsi$bus:$dev.present = \"TRUE\"" >>$vmx
 	echo -e "scsi$bus:$dev.fileName = \"$vmdk\"" >>$vmx

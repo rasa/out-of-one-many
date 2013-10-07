@@ -6,13 +6,15 @@ set -o allexport
 # leave blank to disable
 OOOM_REMOVE_BACKUPS=1
 
-# list the directories mounted on partitions to zero the free space on
-# NOTE: This appears to only work on ext2/ext3/ext4 formatted partitions
-# separate the directory names by spaces (for example: OOOM_ZERO_DISKS="/ /var /opt")
+# list the directories mounted on partitions to be "shrinkable" by zeroing the free space on them
+# NOTE: This only appears to work for the following filesystems: exfat, ext4, jfs, ntfs, vfat, xfs
+# It does NOT work for the following filesystems: btrfs, ext2, ext3 (it causes them to grow by 100s of megabytes)
+# separate the directory names by spaces (for example: OOOM_SHRINK_DISKS="/ /var /opt")
 # leave blank to disable
-OOOM_ZERO_DISKS="/"
+OOOM_SHRINK_DISKS="/"
 
-# list the volume to mark as bootable
+# list the volume mounted to the partition to mark as bootable
+# (any other partitions will have the bootable flag removed from them)
 # leave blank to disable
 OOOM_BOOT_VOL=/boot
 
@@ -24,7 +26,7 @@ OOOM_UPDATE_GRUB=
 # To poweroff, use: shutdown -P now
 # To reboot  , use: shutdown -r now
 # leave blank to disable
-OOOM_EXIT_COMMAND="shutdown -P now"
+OOOM_FINAL_COMMAND="shutdown -P now"
 
 # volume UUID mask, the last two characters will be replaced with the unique value, starting from 01
 # Setting OOOM_UUID to
@@ -76,7 +78,7 @@ else
 	OOOM_FSTAB=ooom.fstab
 fi
 
-OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 if [ -f "$OOOM_DIR/ooom-custom-config.sh" ]
 then

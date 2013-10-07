@@ -35,6 +35,8 @@ OM_install()
 
 			service unattended-upgrades stop
 
+			upgrade-rc.d unattended-upgrades disable
+
 			echo Running add-apt-repository -y ppa:relan/exfat ...
 
 			add-apt-repository -y ppa:relan/exfat
@@ -58,6 +60,8 @@ OM_install()
 	echo Running service unattended-upgrades stop ...
 
 	service unattended-upgrades stop
+
+	upgrade-rc.d unattended-upgrades disable
 }
 
 OM_mkswap()
@@ -539,7 +543,7 @@ OM_installgrub()
 
 echo $0 started at `date`
 
-OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$OOOM_DIR"
 

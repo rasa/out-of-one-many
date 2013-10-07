@@ -44,14 +44,14 @@ Alternatively, you may download ooom via:
 
 <pre>
 $ wget https://raw.github.com/rasa/out-of-one-many/master/ooom.run
-$ sh ./ooom.run
+$ sh ooom.run
 </pre>
 
 or the slightly less verbose, but equivalent:
 
 <pre>
 $ wget http://goo.gl/qse72
-$ sh ./qse72
+$ sh qse72
 </pre>
 
 To install, run:
@@ -60,7 +60,7 @@ To install, run:
 $ cd out-of-one-many
 $ vi ooom.fstab
 $ vi ooom-config.sh # optional
-$ sudo ./install.sh
+$ ./install.sh
 $ sudo shutdown -r now
 </pre>
 
@@ -90,7 +90,7 @@ Ooom will automatically install any packages needed by a specific file system.
 
 ## Supported Filesystems
 
-Ooom works with the following filesystems:
+Ooom has been tested, and works, with the following filesystems:
 
   * btrfs
   * exfat: using PPA package ppa:relan/exfat

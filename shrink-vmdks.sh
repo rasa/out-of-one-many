@@ -3,11 +3,6 @@
 #set -x
 set -e
 
-if [ -z "$disks" ]
-then
-	disks=25
-fi
-
 VDISKMANAGER_OPTIONS="-s 64GB -t 0"
 
 VMWARE_VDISKMANAGER=$(which vmware-vdiskmanager 2>/dev/null || true)

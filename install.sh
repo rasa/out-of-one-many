@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 OOOM_RC_LOCAL=/etc/rc.local.ooomed
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 pushd "$OOOM_DIR" >/dev/null
 

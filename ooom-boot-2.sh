@@ -95,7 +95,7 @@ OM_rmbackup()
 
 echo $0 started at `date`
 
-OOOM_DIR="$(cd "$(dirname "$0")"; pwd)"
+OOOM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$OOOM_DIR"
 
@@ -169,7 +169,7 @@ fi
 
 echo === Step 3: zero volumes
 
-for vol in $OOOM_ZERO_DISKS
+for vol in $OOOM_SHRINK_DISKS
 do
 	if [ ! -d "$vol" ]
 	then
