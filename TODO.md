@@ -1,6 +1,7 @@
 To do list
 ==========
 
+- [ ] move `.run`s to be github releases
 - [ ] split OM_mkfs into OM_mkfs, OM_mount, OM_cpvol
 - [ ] Add a `ooom-check.sh` script
 - [ ] Add a `ooom-prepare.sh` script
