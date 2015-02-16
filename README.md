@@ -37,21 +37,14 @@ Finally, it will shutdown (power off) the system.
 To download, run:
 
 <pre>
-$ git clone git@github.com:rasa/out-of-one-many.git
+$ git clone https://github.com/rasa/out-of-one-many.git
 </pre>
 
 Alternatively, you may download ooom via:
 
 <pre>
-$ wget https://raw.github.com/rasa/out-of-one-many/master/ooom.run
+$ wget https://raw.githubusercontent.com/rasa/out-of-one-many/master/ooom.run
 $ sh ooom.run
-</pre>
-
-or the slightly less verbose, but equivalent:
-
-<pre>
-$ wget http://goo.gl/qse72
-$ sh qse72
 </pre>
 
 To install, run:
