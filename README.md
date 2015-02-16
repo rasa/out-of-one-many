@@ -57,7 +57,7 @@ $ ./install.sh
 $ sudo shutdown -r now
 </pre>
 
-Your system will reboot, and ooom will run automatically, and will shutwon (power off) the system when done.
+Your system will reboot, and ooom will run automatically, and will shutdown (power off) the system when done.
 
 ## Limitations
 
