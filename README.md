@@ -107,7 +107,7 @@ Ooom does not yet work with the following file systems:
 
 ## License
 
-Ooom is [MIT Licensed][/LICENSE]
+Ooom is [MIT Licensed](/LICENSE)
 
 ## Contact
 
