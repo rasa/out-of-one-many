@@ -1,0 +1,127 @@
+Step 1: OM_install
+
+Step 2: post OM_install fix
+
+Step 3: OM_mkfs
+	for each vol (in reverse order)
+		create temp mount points: /mnt/ooom/vol
+		copy vol to /mnt/ooom/vol
+
+Step 4: OM_mkvol
+	for each vol (in reverse order)
+		if vol isn't a mount
+			rename vol to vol.ooomed
+
+Step 5: OM_rmmnt
+
+Step 6: OM_setboot
+
+Step 7: OM_installgrub
+
+
+# list the directories to set permissions for
+# use the format: directory=mode directory=mode
+# for example:
+# OOOM_CHMODS="
+#  /tmp=1777
+#  /srv=0755
+#  /private=0700
+# "
+# leave blank to disable
+OOOM_CHMODS="
+	/tmp=1777
+"
+
+OM_chmod()
+{
+	vol=$1
+	mode=$2
+
+	if [ ! -d "$vol" ]
+	then
+		echo "*** Error: volume not found: $vol"
+		return 1
+	fi
+
+	if [ -z "$mode" ]
+	then
+		echo "*** Error: Invalid mode: $mode"
+		return 1
+	fi
+
+	echo Setting rights on $vol to $mode ...
+
+	chmod -v $mode $vol
+}
+
+echo === Step 3: OM_chmod
+
+for volmode in $OOOM_CHMODS
+do
+	vol=${volmode%%=*}
+	mode=${volmode#*=}
+
+#	OM_chmod "$vol" "$mode"
+done
+
+OM_cpattr()
+{
+	devn=$1
+	vol=$2
+
+	if [ ! -b "$devn" ]
+	then
+		echo "*** Error: Device not found: $devn"
+		return 1
+	fi
+
+	if [ -z "$vol" ]
+	then
+		echo "*** Error: Invalid volume: $vol"
+		return 1
+	fi
+
+	if [ "$vol" = "none" ]
+	then
+		echo Skipping volume: $vol
+		return 0
+	fi
+
+	if [ ! -d "$vol.ooomed" ]
+	then
+		echo Skipping volume $vol as $vol.ooomed does not exist
+		return 0
+	fi
+
+	if [ ! -d "$vol" ]
+	then
+		echo Warning: Skipping volume $vol as it does not exist
+		return 1
+	fi
+
+	chmod -v --reference=$vol.ooomed $vol
+
+	EL=$? ; test "$EL" -gt 0 && echo "*** Error: Command returned error $EL"
+
+	if which rsync >/dev/null 2>/dev/null
+	then
+		rsync -v -ptgo -A -X -d --no-recursive --exclude=* $vol.ooomed $vol
+
+		EL=$? ; test "$EL" -gt 0 && echo "*** Error: Command returned error $EL"
+	fi
+}
+
+echo === Step 2: OM_cpattr
+
+cat $OOOM_FSTABS | while IFS=$' \t' read -r -a var
+do
+	dev=${var[0]}
+	vol=${var[1]}
+
+	if echo "$dev" | egrep -q "^\s*#"
+	then
+		continue
+	fi
+
+	OM_cpattr "$dev" "$vol"
+done

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# default configuration settings
+
 set -o allexport
 
 # set to 1 to remove the original directories that remain on the source volume
@@ -41,16 +43,16 @@ OOOM_UUID=
 # map of file system and package to install for that file system
 # leave blank to disable
 OOOM_PACKAGE_MAP="
-	btrfs,btrfs-tools
-	exfat,exfat-utils
-	ext2,e2fsprogs
-	ext3,e2fsprogs
-	ext4,e2fsprogs
-	jfs,jfsutils
-	ntfs,ntfs-3g
-	reiser4,reiser4progs
-	vfat,dosfstools
-	xfs,xfsprogs
+  btrfs,btrfs-tools
+  exfat,exfat-utils
+  ext2,e2fsprogs
+  ext3,e2fsprogs
+  ext4,e2fsprogs
+  jfs,jfsutils
+  ntfs,ntfs-3g
+  reiser4,reiser4progs
+  vfat,dosfstools
+  xfs,xfsprogs
 "
 
 # command to install packages
@@ -71,20 +73,18 @@ OOOM_MOUNT=/mnt/ooom
 # required
 OOOM_TMPDIR=/tmp
 
-if [ -f "ooom-custom.fstab" ]
-then
-	OOOM_FSTAB=ooom-custom.fstab
+if [[ -f "ooom-custom.fstab" ]]; then
+  OOOM_FSTAB=ooom-custom.fstab
 else
-	OOOM_FSTAB=ooom.fstab
+  OOOM_FSTAB=ooom.fstab
 fi
 
 OOOM_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ -f "$OOOM_DIR/ooom-custom-config.sh" ]
-then
-	echo Running $OOOM_DIR/ooom-custom-config.sh ...
+if [[ -f "$OOOM_DIR/ooom-custom-config.sh" ]]; then
+  echo Running $OOOM_DIR/ooom-custom-config.sh ...
 
-	. $OOOM_DIR/ooom-custom-config.sh
+  . $OOOM_DIR/ooom-custom-config.sh
 fi
 
 # eof
