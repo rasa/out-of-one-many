@@ -86,7 +86,7 @@ Ooom will automatically install any packages needed by a specific file system.
 Ooom has been tested, and works, with the following filesystems:
 
 * btrfs
-* exfat: using PPA package ppa:relan/exfat
+* exfat: using PPA package [ppa:relan/exfat][7]
 * ext2
 * ext3
 * ext4
@@ -123,3 +123,4 @@ Feedback, suggestions, and enhancements are welcome.
 [4]: http://button.flattr.com/flattr-badge-large.png (Flattr this)
 [5]: https://api.coderwall.com/rasa/endorsecount.png
 [6]: https://coderwall.com/rasa
+[7]: https://launchpad.net/~relan/+related-packages
