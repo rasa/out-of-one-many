@@ -86,7 +86,7 @@ Ooom will automatically install any packages needed by a specific file system.
 Ooom has been tested, and works, with the following filesystems:
 
 * btrfs
-* exfat: using PPA package [ppa:relan/exfat][7]
+* exfat: using PPA package [ppa:relan/exfat][]
 * ext2
 * ext3
 * ext4
@@ -103,24 +103,36 @@ Ooom does not yet work with the following file systems:
 
 ## Links
 
-  * [Makeself][2] was used to create the self extracting ooom.run file.
+  * [Makeself][] was used to create the self extracting ooom.run file.
+
+## Contributing
+
+To contribute to this project, please see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Bugs
+
+To view existing bugs, or report a new bug, please see [issues](../../issues).
+
+## Changelog
+
+To view the version history for this project, please see [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 
-Ooom is [MIT Licensed](/LICENSE)
+This project is [MIT licensed](LICENSE).
 
 ## Contact
 
-Current Maintainer: [Ross Smith II][1] [![endorse][5]][6]
-
-Original Author:    [Ross Smith II][1] [![endorse][5]][6]
+This project was created and is maintained by [Ross Smith II][] [![endorse][endorse_png]][endorse]
 
 Feedback, suggestions, and enhancements are welcome.
 
-[1]: mailto:ross@smithii.com
-[2]: http://github.com/megastep/makeself
-[3]: https://flattr.com/submit/auto?user_id=rasa&url=https%3A%2F%2Fgithub.com%2Frasa%2Feolfix
-[4]: http://button.flattr.com/flattr-badge-large.png (Flattr this)
-[5]: https://api.coderwall.com/rasa/endorsecount.png
-[6]: https://coderwall.com/rasa
-[7]: https://launchpad.net/~relan/+related-packages
+[Ross Smith II]: mailto:ross@smithii.com "ross@smithii.com"
+[flatter]: https://flattr.com/submit/auto?user_id=rasa&url=https%3A%2F%2Fgithub.com%2Frasa%2Fout-of-one-many
+[flatter_png]: http://button.flattr.com/flattr-badge-large.png "Flattr this"
+[endorse]: https://coderwall.com/rasa
+[endorse_png]: https://api.coderwall.com/rasa/endorsecount.png "endorse"
+
+
+[Makeself]: http://github.com/megastep/makeself
+[ppa:relan/exfat]: https://launchpad.net/~relan/+related-packages
